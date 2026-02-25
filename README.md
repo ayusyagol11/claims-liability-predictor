@@ -1,3 +1,4 @@
+![Dashboard Snapshot](Dashboard.png)
 # 🛡️ Predictive Claims Liability Model: Insurance Risk Oversight
 
 ## 📋 Project Overview
