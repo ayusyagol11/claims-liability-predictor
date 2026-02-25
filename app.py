@@ -63,7 +63,7 @@ with col1:
         # The model predicts Pure Premium (ClaimAmount / Exposure) [cite: 281]
         prediction = model.predict(input_df)
         
-        st.success(f"### Predicted Annual Liability: €{prediction[0]:.2f}")
+        st.success(f"### Predicted Annual Liability: ${prediction[0]:.2f}")
         st.info("This prediction assists in setting accurate financial reserves and identifying high-risk claims for early intervention. [cite: 68]")
 
 with col2:
