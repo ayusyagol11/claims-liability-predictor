@@ -5,7 +5,7 @@
 
 By leveraging the **freMTPL2** dataset (678,013 policies), I developed a specialized predictive pipeline to estimate **Pure Premium** (Total Liability / Exposure). [cite_start]This tool enables organizations like **Suncorp** to identify "high-risk" claims early, optimize financial reserves, and ensure 100% adherence to regulatory compliance[cite: 18, 55, 68].
 
-🔗 **[View Live Interactive App on Streamlit Cloud](https://YOUR-STREAMLIT-URL-HERE.streamlit.app/)**
+🔗 **[View Live Interactive App on Streamlit Cloud](https://claims-liability-predictor-dgw3wokbgkfzrhm4yfdlrh.streamlit.app/)**
 
 ---
 
@@ -32,20 +32,17 @@ By leveraging the **freMTPL2** dataset (678,013 policies), I developed a special
 ├── requirements.txt      # Dependency manifest for cloud deployment
 ├── README.md             # Strategic project narrative
 └── Notebooks/            # Annotated Jupyter Notebooks with technical deep-dives
-
+```
 ---
 
 ## 📈 Business Impact & ROI
-This model provides evidence-based insights into the effectiveness of risk management processes. By automating the "Data-to-Insight" pipeline, it bridges the gap between clinical/operational data and tangible financial liability, supporting:
+* This model provides evidence-based insights into the effectiveness of risk management processes. By automating the "Data-to-Insight" pipeline, it bridges the gap between clinical/operational data and tangible financial liability, supporting:
+* **Reduced Claims Leakage**: Identifying outliers earlier in the lifecycle.
+* **Regulatory Compliance**: Ensuring adherence to frameworks like the ACT Workers Compensation Act.
+* **Cross-Functional Value**: Translating complex technical findings into clear, concise recommendations for senior stakeholders.
 
-Reduced Claims Leakage: Identifying outliers earlier in the lifecycle.
-
-Regulatory Compliance: Ensuring adherence to frameworks like the ACT Workers Compensation Act.
-
-Cross-Functional Value: Translating complex technical findings into clear, concise recommendations for senior stakeholders.
-
-👤 Contact & Portfolio
-Aayush Yagol Strategic Data Analyst | Master of IT | Suncorp Group Professional 📍 Canberra, ACT
+##👤 Contact & Portfolio
+Aayush Yagol Strategic Data Analyst | Master of IT | 📍 Canberra, ACT
 
 🌐 aayushyagol.com
 
