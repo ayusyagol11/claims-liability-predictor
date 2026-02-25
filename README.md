@@ -24,8 +24,8 @@ Insurance organizations often face "claims leakage" and financial volatility due
 The foundation of this model is the **French Motor Third-Party Liability (TPL) Insurance Claims** dataset. It provides a comprehensive view of risk characteristics observed primarily over a one-year period.
 * **Scope**: Data collected for 677,991 motor third-party liability policies.
 * **Structure**: The data is partitioned into two distinct tables:
-** `freMTPL2freq`: Captures policy-specific risk features (age, region, vehicle age, etc.) and the number of claims recorded.
-** `freMTPL2sev`: Records the specific cost (amount) for each individual claim.
+  * `freMTPL2freq`: Captures policy-specific risk features (age, region, vehicle age, etc.) and the number of claims recorded.
+  * `freMTPL2sev`: Records the specific cost (amount) for each individual claim.
 * **Integration**: Both tables are linked via a unique Policy ID `IDpol` to create a unified view of frequency and severity.
 
 ---
