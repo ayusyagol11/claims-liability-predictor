@@ -1,11 +1,12 @@
-![Dashboard Snapshot](Dashboard.png)
 # 🛡️ Predictive Claims Liability Model: Insurance Risk Oversight
+
+![Dashboard Snapshot](Dashboard.png)
 
 ## 📋 Project Overview
 In large-scale insurance environments, accurately forecasting the ultimate cost of a claim at the point of lodgement is a critical operational hurdle. This project focuses on the development of a high-performance predictive pipeline to estimate the **Pure Premium** (Expected Annual Liability) using a dataset of over 670,000 motor insurance policies.
 By synthesizing multi-dimensional risk features—including actuarial risk scores, geographic density, and vehicle specifications—the model identifies high-signal liability indicators early in the claim lifecycle. This solution serves as a technical proof-of-concept for evidence-based decision-making and proactive risk oversight within complex insurance portfolios.
 
-🔗 **[View Live Interactive Dashboard](https://www.google.com/search?q=https://YOUR-STREAMLIT-URL-HERE.streamlit.app/)**
+🔗 **[View Live Interactive Dashboard](https://claims-liability-predictor-dgw3wokbgkfzrhm4yfdlrh.streamlit.app/)**
 
 ---
 
@@ -16,6 +17,16 @@ Insurance organizations often face "claims leakage" and financial volatility due
 * **Early Intervention:** Automatically flags high-liability "outlier" claims at the point of entry for specialized management.
 * **Reserve Optimization:** Provides data-driven insights to set accurate financial reserves, ensuring organizational liquidity and regulatory compliance.
 * **Regulatory Adherence:** Ensures data integrity and reporting standards align with frameworks such as the **ACT Workers Compensation Act**.
+
+---
+
+## 📊 About the Dataset: freMTPL2
+The foundation of this model is the **French Motor Third-Party Liability (TPL) Insurance Claims** dataset. It provides a comprehensive view of risk characteristics observed primarily over a one-year period.
+* **Scope**: Data collected for 677,991 motor third-party liability policies.
+* **Structure**: The data is partitioned into two distinct tables:
+** `freMTPL2freq`: Captures policy-specific risk features (age, region, vehicle age, etc.) and the number of claims recorded.
+** `freMTPL2sev`: Records the specific cost (amount) for each individual claim.
+* **Integration**: Both tables are linked via a unique Policy ID `IDpol` to create a unified view of frequency and severity.
 
 ---
 
