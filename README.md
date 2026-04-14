@@ -47,7 +47,7 @@ The foundation of this model is the **French Motor Third-Party Liability (TPL) I
 Insurance data is inherently "zero-inflated," meaning the vast majority of policies result in zero claims, while a small fraction result in highly skewed, positive costs.
 To solve this, I implemented a **Tweedie Regressor** (p=1.5), which is a compound Poisson-Gamma distribution. This approach allows for the simultaneous modeling of claim frequency and severity in a single unified framework, providing significantly higher accuracy than standard linear models for insurance pricing.
 
-### **The "Automated Data Supply Chain"**
+### **ML Preprocessing Pipeline**
 * **End-to-End Pipeline:** Developed a modular **Scikit-learn pipeline** to handle automated data acquisition, cleaning, and transformation.
 * **Feature Engineering:** Implemented a `ColumnTransformer` for the technical verification of both numerical (Scaling) and categorical (One-Hot Encoding) risk features.
 * **Exposure Weighting:** Trained the model using `Exposure` as a sample weight to ensure predictions are proportional to the policy duration.
@@ -68,6 +68,14 @@ Evaluated on a 20% holdout test set (~135,000 policies):
 > **Note:** Mean Tweedie Deviance is the primary evaluation metric as it is the native loss
 > function for the Tweedie distribution family. Standard R² can be misleading for
 > zero-inflated insurance data where most policies have zero claims.
+>
+> **Why is Explained Variance near zero and MAE high?** Over 93% of policies have zero claims,
+> making the actual Pure Premium distribution extremely zero-inflated. The model predicts
+> *expected* liability (a small positive value for every policy), not whether a specific claim
+> will occur. This means the MAE (€307) is large relative to the median predicted premium
+> (€117) because most actuals are €0 while predictions are always positive — this is by design
+> in actuarial pricing models, not a deficiency. The Tweedie Deviance (84.05) is the
+> appropriate measure of fit for this distribution.
 
 ---
 
