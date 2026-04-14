@@ -72,15 +72,15 @@ st.markdown("""
 # 3. Load Model & Artifacts
 @st.cache_resource
 def load_model():
-    return joblib.load('tweedie_model.pkl')
+    return joblib.load('model/tweedie_model.pkl')
 
 @st.cache_data
 def load_artifacts():
-    with open('model_metrics.json', 'r') as f:
+    with open('model/model_metrics.json', 'r') as f:
         metrics = json.load(f)
-    with open('portfolio_stats.json', 'r') as f:
+    with open('model/portfolio_stats.json', 'r') as f:
         stats = json.load(f)
-    with open('feature_importance.json', 'r') as f:
+    with open('model/feature_importance.json', 'r') as f:
         feat_imp = json.load(f)
     return metrics, stats, feat_imp
 

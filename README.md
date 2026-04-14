@@ -74,21 +74,32 @@ Evaluated on a 20% holdout test set (~135,000 policies):
 ## 📂 Repository Structure
 
 ```
-├── app.py                              # Streamlit dashboard
-├── ClaimsLiabilityPredictiveModel.ipynb # Training notebook with full EDA & evaluation
-├── tweedie_model.pkl                   # Serialised Tweedie pipeline (joblib)
-├── model_metrics.json                  # Evaluation metrics for dashboard
-├── portfolio_stats.json                # Portfolio distribution stats
-├── feature_importance.json             # Permutation importance results
-├── Dashboard.png                       # Dashboard screenshot
-├── pred_vs_actual.png                  # Predicted vs actual scatter plot
-├── residuals_distribution.png          # Residuals distribution chart
-├── feature_importance.png              # Feature importance bar chart
-├── Data/
+├── app.py                          # Streamlit dashboard (entry point)
+├── requirements.txt                # Python dependencies
+├── README.md
+├── Dashboard.png                   # Dashboard screenshot
+│
+├── model/                          # Trained model & evaluation artifacts
+│   ├── tweedie_model.pkl           # Serialised Tweedie pipeline (joblib)
+│   ├── model_metrics.json          # Evaluation metrics for dashboard
+│   ├── portfolio_stats.json        # Portfolio distribution stats
+│   └── feature_importance.json     # Permutation importance results
+│
+├── notebooks/                      # Training & analysis
+│   └── ClaimsLiabilityPredictiveModel.ipynb
+│
+├── data/                           # Source datasets
 │   ├── freMTPL2freq.csv
 │   └── freMTPL2sev.csv
-├── requirements.txt
-└── README.md
+│
+├── assets/                         # Generated charts
+│   ├── pred_vs_actual.png
+│   ├── residuals_distribution.png
+│   └── feature_importance.png
+│
+└── docs/                           # Reference documents
+    ├── ClaimsLiabilityPredictiveModel.pdf
+    └── freMTPL2 French Motor Third-Part Liability dataset.pdf
 ```
 
 ---
