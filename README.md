@@ -3,10 +3,22 @@
 ![Dashboard Snapshot](Dashboard.png)
 
 ## 📋 Project Overview
-In large-scale insurance environments, accurately forecasting the ultimate cost of a claim at the point of lodgement is a critical operational hurdle. This project focuses on the development of a high-performance predictive pipeline to estimate the **Pure Premium** (Expected Annual Liability) using a dataset of over 670,000 motor insurance policies.
-By synthesizing multi-dimensional risk features—including actuarial risk scores, geographic density, and vehicle specifications—the model identifies high-signal liability indicators early in the claim lifecycle. This solution serves as a technical proof-of-concept for evidence-based decision-making and proactive risk oversight within complex insurance portfolios.
+In large-scale insurance environments, accurately forecasting the ultimate cost of a claim at the point of lodgement is a critical operational challenge. This project demonstrates an end-to-end analytical transition from **operational claims advising to proactive data science**.
+
+By leveraging the **freMTPL2** dataset (678,013 policies), I developed a specialized predictive pipeline to estimate **Pure Premium** (Total Liability / Exposure). This tool enables insurers to identify "high-risk" claims early, optimize financial reserves, and ensure adherence to regulatory compliance.
 
 🔗 **[View Live Interactive Dashboard](https://claims-liability-predictor-dgw3wokbgkfzrhm4yfdlrh.streamlit.app/)**
+
+---
+
+## 🚀 Quick Start
+
+```bash
+git clone https://github.com/ayusyagol11/claims-liability-predictor.git
+cd claims-liability-predictor
+pip install -r requirements.txt
+streamlit run app.py
+```
 
 ---
 
@@ -16,7 +28,7 @@ Insurance organizations often face "claims leakage" and financial volatility due
 ### **Strategic Objectives:**
 * **Early Intervention:** Automatically flags high-liability "outlier" claims at the point of entry for specialized management.
 * **Reserve Optimization:** Provides data-driven insights to set accurate financial reserves, ensuring organizational liquidity and regulatory compliance.
-* **Regulatory Adherence:** Ensures data integrity and reporting standards align with frameworks such as the **ACT Workers Compensation Act**.
+* **Regulatory Adherence:** Ensures data integrity and reporting standards align with French motor insurance governance frameworks.
 
 ---
 
@@ -33,7 +45,7 @@ The foundation of this model is the **French Motor Third-Party Liability (TPL) I
 ## 🛠️ Technical Methodology
 ### **Addressing Zero-Inflation with Tweedie Regression**
 Insurance data is inherently "zero-inflated," meaning the vast majority of policies result in zero claims, while a small fraction result in highly skewed, positive costs.
-To solve this, I implemented a **Tweedie Regressor** (), which is a compound Poisson-Gamma distribution. This approach allows for the simultaneous modeling of claim frequency and severity in a single unified framework, providing significantly higher accuracy than standard linear models for insurance pricing.
+To solve this, I implemented a **Tweedie Regressor** (p=1.5), which is a compound Poisson-Gamma distribution. This approach allows for the simultaneous modeling of claim frequency and severity in a single unified framework, providing significantly higher accuracy than standard linear models for insurance pricing.
 
 ### **The "Automated Data Supply Chain"**
 * **End-to-End Pipeline:** Developed a modular **Scikit-learn pipeline** to handle automated data acquisition, cleaning, and transformation.
@@ -42,14 +54,41 @@ To solve this, I implemented a **Tweedie Regressor** (), which is a compound Poi
 
 ---
 
+## 📈 Model Evaluation Results
+
+Evaluated on a 20% holdout test set (~135,000 policies):
+
+| Metric | Value |
+|--------|-------|
+| Mean Tweedie Deviance (p=1.5) | 84.0536 |
+| Mean Absolute Error (MAE) | €307.34 |
+| Root Mean Squared Error (RMSE) | €8,815.60 |
+| Explained Variance Score | -0.0002 |
+
+> **Note:** Mean Tweedie Deviance is the primary evaluation metric as it is the native loss
+> function for the Tweedie distribution family. Standard R² can be misleading for
+> zero-inflated insurance data where most policies have zero claims.
+
+---
+
 ## 📂 Repository Structure
 
-```text
-├── app.py                # Streamlit Dashboard (Strategic Storytelling Interface)
-├── tweedie_model.pkl      # Production-ready trained pipeline (serialized)
-├── requirements.txt      # Dependency manifest for automated deployment
-├── README.md             # Project narrative and business impact
-└── Notebooks/            # Annotated deep-dives into EDA and model validation
+```
+├── app.py                              # Streamlit dashboard
+├── ClaimsLiabilityPredictiveModel.ipynb # Training notebook with full EDA & evaluation
+├── tweedie_model.pkl                   # Serialised Tweedie pipeline (joblib)
+├── model_metrics.json                  # Evaluation metrics for dashboard
+├── portfolio_stats.json                # Portfolio distribution stats
+├── feature_importance.json             # Permutation importance results
+├── Dashboard.png                       # Dashboard screenshot
+├── pred_vs_actual.png                  # Predicted vs actual scatter plot
+├── residuals_distribution.png          # Residuals distribution chart
+├── feature_importance.png              # Feature importance bar chart
+├── Data/
+│   ├── freMTPL2freq.csv
+│   └── freMTPL2sev.csv
+├── requirements.txt
+└── README.md
 ```
 
 ---
@@ -61,8 +100,26 @@ To solve this, I implemented a **Tweedie Regressor** (), which is a compound Poi
 
 ---
 
+## ⚠️ Limitations & Future Work
+
+**Current Limitations:**
+- Single observation year — no temporal validation possible
+- French Motor TPL market — findings are not directly transferable to Australian portfolios without recalibration
+- No external validation dataset
+- Tweedie power parameter (p=1.5) was set based on domain convention, not optimised via grid search
+- No feature interaction terms explored
+
+**Future Improvements:**
+- Grid search on Tweedie `power` parameter (1.0 < p < 2.0)
+- Cross-validation with exposure-weighted folds
+- Feature interaction terms (e.g., DrivAge × BonusMalus)
+- Geographic risk clustering using Inhabitant Density and Region
+- Comparison with Gradient Boosted Tweedie (e.g., LightGBM with Tweedie objective)
+
+---
+
 ## 👤 Technical Profile
-**Aayush Yagol** | 📍 Canberra, ACT 
-🌐 [aayushyagol.com](https://aayushyagol.com) | 🔗 [LinkedIn](https://www.linkedin.com/in/aayush-yagol-046874145/) 
+**Aayush Yagol** | 📍 Canberra, ACT
+🌐 [aayushyagol.com](https://aayushyagol.com) | 🔗 [LinkedIn](https://www.linkedin.com/in/aayush-yagol-046874145/)
 
 ---

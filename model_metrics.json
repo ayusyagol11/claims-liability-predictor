@@ -1,0 +1,9 @@
+{
+  "mean_tweedie_deviance": 84.05360574669685,
+  "mae": 307.3433996020753,
+  "rmse": 8815.6048770521,
+  "explained_variance": -0.0001579338280239817,
+  "test_size": 135603,
+  "train_size": 542410,
+  "tweedie_power": 1.5
+}
