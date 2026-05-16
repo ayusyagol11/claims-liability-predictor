@@ -385,68 +385,79 @@ st.sidebar.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# 5. Main Content Wrapper
+# 5. Main content
 st.markdown("<div class='main-content'>", unsafe_allow_html=True)
 
-# 5b. Model-Derived Risk Profile
-st.markdown("### **Relative Risk Profile**")
 prediction = model.predict(model_df)[0]
+pred_percentile = get_risk_percentile(prediction, portfolio_stats)
+risk_label, risk_color, badge_class = get_risk_tier(pred_percentile)
+band_label = get_percentile_band(prediction, portfolio_stats)
 
-# Model-derived risk percentile based on predicted distribution
-thresholds = [
-    portfolio_stats['p25_pure_premium'],
-    portfolio_stats['median_pure_premium'],
-    portfolio_stats['p75_pure_premium'],
-    portfolio_stats['p90_pure_premium'],
-    portfolio_stats['p95_pure_premium']
-]
-pred_percentile = 0
-for t in thresholds:
-    if prediction >= t:
-        pred_percentile += 20
-pred_percentile = min(pred_percentile, 100)
+int_part = f"{int(prediction):,}"
+dec_part = f"{prediction:.2f}".split('.')[1]
 
-# Colour based on zone
-if pred_percentile <= 33:
-    bar_color = '#28a745'
-    risk_label = 'Low Risk'
-elif pred_percentile <= 66:
-    bar_color = '#ffc107'
-    risk_label = 'Moderate Risk'
-else:
-    bar_color = '#dc3545'
-    risk_label = 'High Risk'
+# ── Section 1: Risk Assessment ────────────────────────────────────────────────
+st.markdown(section_header("Risk Assessment"), unsafe_allow_html=True)
 
-st.markdown(f"""
-    <div style="width: 100%; background-color: #333; border-radius: 10px; height: 35px; margin: 10px 0; overflow: hidden;">
-        <div style="width: {pred_percentile}%; height: 100%;
-             background-color: {bar_color};
-             border-radius: 10px 0 0 10px;">
+col1, col2, col3 = st.columns([2, 1, 1])
+
+with col1:
+    st.markdown(f"""
+    <div class="kpi-accent-card">
+        <div class="card-label">Expected Annual Liability</div>
+        <div class="kpi-value">€<span class="kpi-teal">{int_part}</span>.{dec_part}</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:10px;">
+            <span class="{badge_class}">
+                <span style="width:6px;height:6px;border-radius:50%;background:currentColor;
+                             display:inline-block;flex-shrink:0;"></span>
+                {risk_label.title()} Risk
+            </span>
+            <span class="kpi-context">
+                Portfolio median: €{portfolio_stats['median_pure_premium']:,.2f}
+            </span>
         </div>
     </div>
-    <p style="text-align: right; font-weight: bold; color: {bar_color};">{risk_label} — Percentile: {int(pred_percentile)}%</p>
     """, unsafe_allow_html=True)
 
-# 5c. Reactive Prediction (no button needed)
-st.markdown("<h2 style='text-align: center; color: #28a745; margin-top: 30px;'>Calculated Expected Claim Liability</h2>", unsafe_allow_html=True)
-st.markdown(f"<h1 style='text-align: center; font-size: 5rem; color: white;'>€{prediction:,.2f}</h1>", unsafe_allow_html=True)
+with col2:
+    st.markdown(f"""
+    <div class="kpi-card">
+        <div class="card-label">Portfolio Percentile</div>
+        <div class="kpi-stat-val">{pred_percentile}<span style="font-size:1rem;color:#4a6080;">th</span></div>
+        <div class="kpi-stat-sub">{band_label} band</div>
+    </div>
+    """, unsafe_allow_html=True)
 
-# Portfolio context
-percentile_bins = sorted([
-    portfolio_stats['p25_pure_premium'],
-    portfolio_stats['median_pure_premium'],
-    portfolio_stats['p75_pure_premium'],
-    portfolio_stats['p90_pure_premium'],
-    portfolio_stats['p95_pure_premium']
-])
-percentile_idx = np.searchsorted(percentile_bins, prediction)
-percentile_labels = ['Below 25th', '25th–50th', '50th–75th', '75th–90th', '90th–95th', 'Above 95th']
-percentile_label = percentile_labels[min(percentile_idx, 5)]
+with col3:
+    st.markdown(f"""
+    <div class="kpi-card">
+        <div class="card-label">Risk Band</div>
+        <div class="kpi-stat-val" style="color:{risk_color};font-size:1.3rem;margin-top:8px;">
+            {risk_label}
+        </div>
+        <div class="kpi-stat-sub">LOW / MODERATE / HIGH</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 st.markdown(f"""
-<p style='text-align: center; color: #A1A1AA; font-size: 1rem; margin-top: -10px;'>
-    Portfolio Median: €{portfolio_stats['median_pure_premium']:,.2f} · This policy: {percentile_label} percentile
-</p>
+<div class="risk-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span class="card-label">Risk Spectrum</span>
+        <span style="font-size:0.65rem;font-weight:700;color:{risk_color};">
+            {pred_percentile} / 100
+        </span>
+    </div>
+    <div class="risk-bar-track">
+        <div style="width:{pred_percentile}%;height:100%;
+                    background:linear-gradient(90deg,#00d4aa,#0088ff);
+                    border-radius:4px;"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;">
+        <span style="font-size:0.6rem;color:#2a4060;">Low (&lt;p25)</span>
+        <span style="font-size:0.6rem;color:#2a4060;">Moderate (p25–p75)</span>
+        <span style="font-size:0.6rem;color:#2a4060;">High (&gt;p75)</span>
+    </div>
+</div>
 """, unsafe_allow_html=True)
 
 # 5d. Model Performance & Evaluation Expander
@@ -487,7 +498,7 @@ with st.expander("Model Performance & Evaluation", expanded=False):
     st.markdown("### Prediction in Portfolio Context")
     st.markdown(f"""
     The predicted Pure Premium of **€{prediction:,.2f}** places this policy in the
-    **{percentile_label}** of the portfolio. The median predicted policy costs €{portfolio_stats['median_pure_premium']:,.2f}
+    **{band_label}** of the portfolio. The median predicted policy costs €{portfolio_stats['median_pure_premium']:,.2f}
     per year in expected liability.
     """)
 
