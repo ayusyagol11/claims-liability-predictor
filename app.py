@@ -245,16 +245,7 @@ html, body, [class*="css"] {
 """
 st.markdown(CSS, unsafe_allow_html=True)
 
-# 2. Precise Strategic Narrative
-st.title("🛡️ Predictive Claims Liability Dashboard")
-st.markdown("""
-    This analytical tool utilizes a **Tweedie Regressor** to estimate the **Pure Premium** (Expected Annual Liability)
-    at the individual policy level. By synthesizing multi-dimensional risk features—including
-    actuarial risk scores, geographic density, and vehicle specifications—this dashboard identifies high-signal
-    liability indicators early in the claim lifecycle.
-""")
-
-# 3. Load Model & Artifacts
+# 2. Load Model & Artifacts
 @st.cache_resource
 def load_model():
     return joblib.load('model/tweedie_model.pkl')
@@ -322,16 +313,26 @@ def metric_card(label: str, value: str, context: str) -> str:
     </div>"""
 
 
-# 4. Input Policy Parameters
-st.sidebar.header("Input Policy Parameters")
+# 4. Sidebar
+st.sidebar.markdown("""
+<div class="sidebar-logo">
+    <div class="sidebar-logo-mark">&#x2B21;</div>
+    <div>
+        <div class="sidebar-logo-title">Claims Liability</div>
+        <div class="sidebar-logo-sub">Tweedie Regressor · p=1.5</div>
+    </div>
+</div>
+<div class="sidebar-section-label">Policy Parameters</div>
+""", unsafe_allow_html=True)
+
 
 def get_user_input():
     st.sidebar.markdown("<p class='param-header'>Driver Age</p>", unsafe_allow_html=True)
     st.sidebar.markdown("<p class='parameter-desc'>Chronological age of the policyholder; a primary factor in actuarial risk profiling.</p>", unsafe_allow_html=True)
     driv_age = st.sidebar.slider("DrivAge", 18, 100, 35, label_visibility="collapsed")
 
-    st.sidebar.markdown("<p class='param-header'>Bonus/Malus (Risk Index)</p>", unsafe_allow_html=True)
-    st.sidebar.markdown("<p class='parameter-desc'>The French CRM score: <100 indicates a bonus; >100 indicates a malus (high risk).</p>", unsafe_allow_html=True)
+    st.sidebar.markdown("<p class='param-header'>Bonus / Malus (Risk Index)</p>", unsafe_allow_html=True)
+    st.sidebar.markdown("<p class='parameter-desc'>The French CRM score: &lt;100 indicates a bonus; &gt;100 indicates a malus (high risk).</p>", unsafe_allow_html=True)
     bonus_malus = st.sidebar.slider("BonusMalus", 50, 350, 50, label_visibility="collapsed")
 
     st.sidebar.markdown("<p class='param-header'>Vehicle Age (Years)</p>", unsafe_allow_html=True)
@@ -347,59 +348,45 @@ def get_user_input():
     density = st.sidebar.number_input("Density", 0, 30000, 1000, label_visibility="collapsed")
 
     st.sidebar.markdown("<p class='param-header'>Geographic Area</p>", unsafe_allow_html=True)
-    st.sidebar.markdown("<p class='parameter-desc'>Zonal classification ranging from 'A' (rural) to 'F' (urban core).</p>", unsafe_allow_html=True)
+    st.sidebar.markdown("<p class='parameter-desc'>Zonal classification: A (rural) → F (urban core).</p>", unsafe_allow_html=True)
     area = st.sidebar.selectbox("Area", ("A", "B", "C", "D", "E", "F"), index=2, label_visibility="collapsed")
 
     st.sidebar.markdown("<p class='param-header'>Vehicle Brand</p>", unsafe_allow_html=True)
-    st.sidebar.markdown("<p class='parameter-desc'>Manufacturer categorization; proxy for parts replacement cost and reliability.</p>", unsafe_allow_html=True)
+    st.sidebar.markdown("<p class='parameter-desc'>Manufacturer categorisation; proxy for parts cost and reliability.</p>", unsafe_allow_html=True)
     veh_brand = st.sidebar.selectbox("VehBrand", ("B1", "B2", "B3", "B4", "B5", "B6", "B10", "B11", "B12", "B13", "B14"), label_visibility="collapsed")
 
     st.sidebar.markdown("<p class='param-header'>Fuel Type</p>", unsafe_allow_html=True)
-    st.sidebar.markdown("<p class='parameter-desc'>The energy source; Diesel often correlates with high-mileage commercial usage.</p>", unsafe_allow_html=True)
+    st.sidebar.markdown("<p class='parameter-desc'>Diesel often correlates with high-mileage commercial usage patterns.</p>", unsafe_allow_html=True)
     veh_gas = st.sidebar.radio("VehGas", ("Regular", "Diesel"), label_visibility="collapsed")
 
     st.sidebar.markdown("<p class='param-header'>Administrative Region</p>", unsafe_allow_html=True)
-    st.sidebar.markdown("<p class='parameter-desc'>The regional classification code based on official French administrative zones.</p>", unsafe_allow_html=True)
+    st.sidebar.markdown("<p class='parameter-desc'>Official French administrative zone classification code.</p>", unsafe_allow_html=True)
     region = st.sidebar.selectbox("Region", ("R24", "R82", "R22", "R72", "R31", "R91", "R52", "R93", "R11", "R53", "R54", "R73", "R42", "R41", "R83", "R94", "R43", "R26", "R25", "R21", "R23"), label_visibility="collapsed")
 
-    # Maintain sequence for Display
-    display_data = {
-        'Driver Age (year)': driv_age,
-        'Bonus/Malus (Risk Index)': bonus_malus,
-        'Vehicle Age (Years)': veh_age,
-        'Vehicle Power': veh_power,
-        'Inhabitant Density': density,
-        'Geographic Area': area,
-        'Vehicle Brand': veh_brand,
-        'Fuel Type': veh_gas,
-        'Administrative Region': region
-    }
-
-    # Feature names must match training columns
-    model_data = {
+    return pd.DataFrame({
         'VehPower': veh_power, 'VehAge': veh_age, 'DrivAge': driv_age,
         'BonusMalus': bonus_malus, 'Density': density, 'Area': area,
         'VehBrand': veh_brand, 'VehGas': veh_gas, 'Region': region
-    }
+    }, index=[0])
 
-    return pd.DataFrame(display_data, index=[0]), pd.DataFrame(model_data, index=[0])
 
-display_df, model_df = get_user_input()
+model_df = get_user_input()
+
+st.sidebar.markdown("""
+<div style="margin-top:20px;padding-top:14px;border-top:1px solid #1e2d45;
+            text-align:center;font-size:0.6rem;color:#2a4060;line-height:1.7;">
+    Built by
+    <a href="https://aayushyagol.com" target="_blank"
+       style="color:#00d4aa88;text-decoration:none;">Aayush Yagol</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/ayusyagol11/claims-liability-predictor" target="_blank"
+       style="color:#4a6080;text-decoration:none;">GitHub</a><br>
+    freMTPL2 · 678K policies
+</div>
+""", unsafe_allow_html=True)
 
 # 5. Main Content Wrapper
 st.markdown("<div class='main-content'>", unsafe_allow_html=True)
-
-# 5a. Analytical Policy Summary Table
-st.subheader("Analytical Policy Summary")
-styled_table = display_df.style.set_properties(**{
-    'background-color': 'black',
-    'color': 'white',
-    'border-color': '#444',
-    'font-size': '1.1rem',
-    'text-align': 'center'
-}).hide(axis='index')
-
-st.table(styled_table)
 
 # 5b. Model-Derived Risk Profile
 st.markdown("### **Relative Risk Profile**")
