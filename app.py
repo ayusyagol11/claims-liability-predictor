@@ -460,54 +460,87 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# 5d. Model Performance & Evaluation Expander
-with st.expander("Model Performance & Evaluation", expanded=False):
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Tweedie Deviance", f"{metrics['mean_tweedie_deviance']:.4f}")
-    col2.metric("MAE", f"€{metrics['mae']:.2f}")
-    col3.metric("RMSE", f"€{metrics['rmse']:.2f}")
-    col4.metric("Explained Variance", f"{metrics['explained_variance']:.4f}")
+# ── Section 2: Model Performance ─────────────────────────────────────────────
+st.markdown(section_header("Model Performance"), unsafe_allow_html=True)
 
-    st.markdown(f"""
-    **Evaluation Details:** Model evaluated on a {metrics['test_size']:,}-policy holdout test set
-    (20% of {metrics['train_size'] + metrics['test_size']:,} total policies).
-    The Tweedie Regressor (p={metrics['tweedie_power']}) was trained with exposure-weighted
-    sample weights to account for variable policy durations.
-    """)
+m1, m2, m3, m4 = st.columns(4)
 
-    # Feature Importance Chart
-    st.markdown("### Feature Importance (Permutation)")
-    fi_df = pd.DataFrame({
-        'Feature': feat_imp['features'],
-        'Importance': feat_imp['importance_mean']
-    }).sort_values('Importance', ascending=True)
+with m1:
+    st.markdown(metric_card(
+        "Tweedie Deviance",
+        f"{metrics['mean_tweedie_deviance']:.4f}",
+        f"Primary metric · p={metrics['tweedie_power']}<br>"
+        "Native loss for zero-inflated data"
+    ), unsafe_allow_html=True)
 
-    fig = px.bar(fi_df, x='Importance', y='Feature', orientation='h',
-                 title='Feature Importance (Permutation)',
-                 color_discrete_sequence=['#28a745'])
-    fig.update_layout(
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        font_color='white',
-        title_font_size=16,
-        height=400
-    )
-    st.plotly_chart(fig, use_container_width=True)
+with m2:
+    st.markdown(metric_card(
+        "MAE",
+        f"€{metrics['mae']:,.2f}",
+        f"Test set: {metrics['test_size']:,} policies<br>"
+        "Zero-inflated — expected high"
+    ), unsafe_allow_html=True)
 
-    # Prediction in Portfolio Context
-    st.markdown("### Prediction in Portfolio Context")
-    st.markdown(f"""
-    The predicted Pure Premium of **€{prediction:,.2f}** places this policy in the
-    **{band_label}** of the portfolio. The median predicted policy costs €{portfolio_stats['median_pure_premium']:,.2f}
-    per year in expected liability.
-    """)
+with m3:
+    st.markdown(metric_card(
+        "RMSE",
+        f"€{metrics['rmse']:,.2f}",
+        "Driven by high-severity<br>tail claims (&lt;1% of policies)"
+    ), unsafe_allow_html=True)
+
+with m4:
+    st.markdown(metric_card(
+        "Explained Variance",
+        f"{metrics['explained_variance']:.4f}",
+        "Expected near-zero<br>for TPL pricing models"
+    ), unsafe_allow_html=True)
+
+fi_df = pd.DataFrame({
+    'Feature': feat_imp['features'],
+    'Importance': feat_imp['importance_mean']
+}).sort_values('Importance', ascending=True)
+
+fig = px.bar(
+    fi_df, x='Importance', y='Feature', orientation='h',
+    title='Feature Importance (Permutation Method)',
+    color='Importance',
+    color_continuous_scale=[[0, '#ef4444'], [0.499, '#ef4444'],
+                             [0.501, '#00d4aa'], [1, '#00d4aa']],
+    color_continuous_midpoint=0,
+)
+fig.update_layout(
+    plot_bgcolor='rgba(0,0,0,0)',
+    paper_bgcolor='rgba(0,0,0,0)',
+    font_color='#8899aa',
+    title_font_size=14,
+    title_font_color='#cdd9e5',
+    height=380,
+    coloraxis_showscale=False,
+    margin=dict(l=0, r=0, t=40, b=0),
+)
+fig.update_xaxes(gridcolor='#1e2d45', zerolinecolor='#1e2d45')
+fig.update_yaxes(gridcolor='rgba(0,0,0,0)')
+st.plotly_chart(fig, use_container_width=True)
+
+st.markdown("""
+<div class="fi-context">
+    <strong style="color:#8899aa;">BonusMalus</strong> dominates with an importance score
+    ~14&times; greater than the next feature (VehPower). This aligns with actuarial convention
+    — the CRM score is the single strongest predictor of individual claim liability.
+    Density shows a slight negative permutation score, suggesting minor collinearity with Area.
+</div>
+""", unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
 
-# 6. Global Fixed Footer
+# ── Footer ────────────────────────────────────────────────────────────────────
 st.markdown("""
-    <div class="footer">
-        Created by <a href="https://aayushyagol.com" target="_blank" style="color: #BA7517;">Aayush Yagol</a>
-        · <a href="https://github.com/ayusyagol11/claims-liability-predictor" target="_blank" style="color: #888;">GitHub</a>
-    </div>
-    """, unsafe_allow_html=True)
+<div class="footer">
+    Created by
+    <a href="https://aayushyagol.com" target="_blank"
+       style="color:#00d4aa88;text-decoration:none;">Aayush Yagol</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/ayusyagol11/claims-liability-predictor" target="_blank"
+       style="color:#4a6080;text-decoration:none;">GitHub</a>
+</div>
+""", unsafe_allow_html=True)
