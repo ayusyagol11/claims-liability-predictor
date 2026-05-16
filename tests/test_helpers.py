@@ -39,7 +39,7 @@ def get_percentile_band(prediction, portfolio_stats):
     ])
     labels = ['Below 25th', '25th – 50th', '50th – 75th',
               '75th – 90th', '90th – 95th', 'Above 95th']
-    return labels[min(np.searchsorted(bins, prediction), 5)]
+    return labels[min(np.searchsorted(bins, prediction, side='right'), 5)]
 
 
 def section_header(title):

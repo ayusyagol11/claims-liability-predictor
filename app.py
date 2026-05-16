@@ -210,7 +210,7 @@ html, body, [class*="css"] {
     margin: 4px 0;
 }
 .metric-context {
-    font-size: 0.6rem;
+    font-size: 0.65rem;
     color: #4a6080;
     margin-top: 4px;
     line-height: 1.4;
@@ -293,7 +293,7 @@ def get_percentile_band(prediction: float, portfolio_stats: dict) -> str:
     ])
     labels = ['Below 25th', '25th – 50th', '50th – 75th',
               '75th – 90th', '90th – 95th', 'Above 95th']
-    return labels[min(np.searchsorted(bins, prediction), 5)]
+    return labels[min(np.searchsorted(bins, prediction, side='right'), 5)]
 
 
 def section_header(title: str) -> str:
