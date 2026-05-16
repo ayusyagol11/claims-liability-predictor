@@ -6,59 +6,244 @@ import json
 import plotly.express as px
 
 # 1. Page Configuration & Global Styling
-st.set_page_config(page_title="Predictive Claims Liability Dashboard", layout="wide")
+st.set_page_config(page_title="Claims Liability Dashboard", layout="wide")
 
-st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+CSS = """
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
 
-    html, body, [class*="css"] {
-        font-family: 'Open Sans', sans-serif;
-    }
+html, body, [class*="css"] {
+    font-family: 'Inter', 'Segoe UI', -apple-system, sans-serif;
+}
 
-    /* Sidebar Styling */
-    [data-testid="stSidebar"] {
-        min-width: 480px;
-        max-width: 480px;
-        z-index: 100; /* Lower than the footer */
-    }
+[data-testid="stSidebar"] {
+    min-width: 280px;
+    max-width: 280px;
+    background-color: #0a1220;
+}
 
-    .param-header {
-        font-size: 1.15rem;
-        font-weight: 600;
-        margin-bottom: 2px;
-        color: white;
-    }
+.stApp { background-color: #080c14; }
 
-    .parameter-desc {
-        font-size: 0.8rem;
-        color: rgba(255, 255, 255, 0.6);
-        margin-top: 0px;
-        margin-bottom: 15px;
-        line-height: 1.2;
-    }
+.section-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 8px 0 16px;
+}
+.section-divider-title {
+    color: #cdd9e5;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    white-space: nowrap;
+}
+.section-divider-rule {
+    flex: 1;
+    height: 1px;
+    background: #1e2d45;
+}
 
-    /* Fixed Footer - High Z-Index to stay on top of Sidebar */
-    .footer {
-        position: fixed;
-        left: 0;
-        bottom: 0;
-        width: 100vw; /* Spans full viewport width */
-        background-color: #0e1117;
-        color: #888;
-        text-align: center;
-        padding: 15px 0;
-        font-size: 0.85rem;
-        border-top: 1px solid #333;
-        z-index: 9999; /* Higher than any other element */
-    }
+.sidebar-logo {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid #1e2d45;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+.sidebar-logo-mark {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #00d4aa, #0088ff);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #fff;
+    font-weight: 900;
+    flex-shrink: 0;
+}
+.sidebar-logo-title {
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+.sidebar-logo-sub {
+    color: #4a6080;
+    font-size: 0.62rem;
+    margin-top: 2px;
+}
+.sidebar-section-label {
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #2a4060;
+    margin-bottom: 14px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #12202e;
+}
 
-    /* Pushing content up so it's not hidden behind footer */
-    .main-content {
-        margin-bottom: 80px;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+.param-header {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #4a6080;
+    margin-bottom: 2px;
+}
+.parameter-desc {
+    font-size: 0.62rem;
+    color: #2a4060;
+    margin-top: 0;
+    margin-bottom: 5px;
+    line-height: 1.3;
+}
+
+.kpi-accent-card {
+    background: linear-gradient(135deg, #0d2137, #0a1a2e);
+    border: 1px solid #00d4aa33;
+    border-left: 3px solid #00d4aa;
+    border-radius: 8px;
+    padding: 16px 20px;
+    height: 100%;
+}
+.kpi-card {
+    background: #0f1623;
+    border: 1px solid #1e2d45;
+    border-radius: 8px;
+    padding: 16px 20px;
+    height: 100%;
+    text-align: center;
+}
+.card-label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #4a6080;
+    margin-bottom: 6px;
+}
+.kpi-value {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 10px;
+}
+.kpi-teal { color: #00d4aa; }
+.badge-low {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #00d4aa14;
+    border: 1px solid #00d4aa44;
+    color: #00d4aa;
+    border-radius: 4px;
+    padding: 3px 10px;
+    font-size: 0.65rem;
+    font-weight: 700;
+}
+.badge-moderate {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #f59e0b14;
+    border: 1px solid #f59e0b44;
+    color: #f59e0b;
+    border-radius: 4px;
+    padding: 3px 10px;
+    font-size: 0.65rem;
+    font-weight: 700;
+}
+.badge-high {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #ef444414;
+    border: 1px solid #ef444444;
+    color: #ef4444;
+    border-radius: 4px;
+    padding: 3px 10px;
+    font-size: 0.65rem;
+    font-weight: 700;
+}
+.kpi-stat-val {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+    line-height: 1;
+    margin: 6px 0 4px;
+}
+.kpi-stat-sub { color: #4a6080; font-size: 0.62rem; }
+.kpi-context { color: #4a6080; font-size: 0.65rem; margin-top: 6px; }
+
+.risk-card {
+    background: #0f1623;
+    border: 1px solid #1e2d45;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 10px;
+}
+.risk-bar-track {
+    height: 8px;
+    background: #1a2840;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 8px 0 6px;
+}
+
+.metric-card {
+    background: #0f1623;
+    border: 1px solid #1e2d45;
+    border-radius: 8px;
+    padding: 14px 16px;
+    height: 100%;
+}
+.metric-val {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #cdd9e5;
+    margin: 4px 0;
+}
+.metric-context {
+    font-size: 0.6rem;
+    color: #4a6080;
+    margin-top: 4px;
+    line-height: 1.4;
+}
+
+.fi-context {
+    font-size: 0.7rem;
+    color: #4a6080;
+    line-height: 1.6;
+    padding: 12px 16px;
+    background: #080c14;
+    border-radius: 6px;
+    border: 1px solid #12202e;
+    margin-top: 14px;
+}
+
+.footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100vw;
+    background-color: #080c14;
+    color: #4a6080;
+    text-align: center;
+    padding: 12px 0;
+    font-size: 0.65rem;
+    border-top: 1px solid #1e2d45;
+    z-index: 9999;
+}
+.main-content { margin-bottom: 80px; }
+</style>
+"""
+st.markdown(CSS, unsafe_allow_html=True)
 
 # 2. Precise Strategic Narrative
 st.title("🛡️ Predictive Claims Liability Dashboard")
@@ -86,6 +271,56 @@ def load_artifacts():
 
 model = load_model()
 metrics, portfolio_stats, feat_imp = load_artifacts()
+
+
+def get_risk_percentile(prediction: float, portfolio_stats: dict) -> int:
+    thresholds = [
+        portfolio_stats['p25_pure_premium'],
+        portfolio_stats['median_pure_premium'],
+        portfolio_stats['p75_pure_premium'],
+        portfolio_stats['p90_pure_premium'],
+        portfolio_stats['p95_pure_premium'],
+    ]
+    return min(sum(1 for t in thresholds if prediction >= t) * 20, 100)
+
+
+def get_risk_tier(percentile: int) -> tuple:
+    if percentile <= 33:
+        return 'LOW', '#00d4aa', 'badge-low'
+    elif percentile <= 66:
+        return 'MODERATE', '#f59e0b', 'badge-moderate'
+    return 'HIGH', '#ef4444', 'badge-high'
+
+
+def get_percentile_band(prediction: float, portfolio_stats: dict) -> str:
+    bins = sorted([
+        portfolio_stats['p25_pure_premium'],
+        portfolio_stats['median_pure_premium'],
+        portfolio_stats['p75_pure_premium'],
+        portfolio_stats['p90_pure_premium'],
+        portfolio_stats['p95_pure_premium'],
+    ])
+    labels = ['Below 25th', '25th – 50th', '50th – 75th',
+              '75th – 90th', '90th – 95th', 'Above 95th']
+    return labels[min(np.searchsorted(bins, prediction), 5)]
+
+
+def section_header(title: str) -> str:
+    return f"""
+    <div class="section-divider">
+        <span class="section-divider-title">{title}</span>
+        <div class="section-divider-rule"></div>
+    </div>"""
+
+
+def metric_card(label: str, value: str, context: str) -> str:
+    return f"""
+    <div class="metric-card">
+        <div class="card-label">{label}</div>
+        <div class="metric-val">{value}</div>
+        <div class="metric-context">{context}</div>
+    </div>"""
+
 
 # 4. Input Policy Parameters
 st.sidebar.header("Input Policy Parameters")
