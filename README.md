@@ -3,7 +3,7 @@
 ![Dashboard Snapshot](Dashboard.png)
 
 ## 📋 Project Overview
-In large-scale insurance environments, accurately forecasting the ultimate cost of a claim at the point of lodgement is a critical operational challenge. This project demonstrates an end-to-end analytical transition from **operational claims advising to proactive data science**.
+In large-scale insurance environments, accurately forecasting the ultimate cost of a claim at the point of lodgement is a critical operational challenge. 
 
 By leveraging the **freMTPL2** dataset (678,013 policies), I developed a specialized predictive pipeline to estimate **Pure Premium** (Total Liability / Exposure). This tool enables insurers to identify "high-risk" claims early, optimize financial reserves, and ensure adherence to regulatory compliance.
 
@@ -11,19 +11,9 @@ By leveraging the **freMTPL2** dataset (678,013 policies), I developed a special
 
 ---
 
-## 🚀 Quick Start
-
-```bash
-git clone https://github.com/ayusyagol11/claims-liability-predictor.git
-cd claims-liability-predictor
-pip install -r requirements.txt
-streamlit run app.py
-```
-
----
 
 ## 💼 The Business Problem
-Insurance organizations often face "claims leakage" and financial volatility due to reactive reserve setting. Traditional manual reviews are resource-intensive and may miss non-obvious correlations in high-volume data.
+Insurance organisations often face "claims leakage" and financial volatility due to reactive reserve setting. Traditional manual reviews are resource-intensive and may miss non-obvious correlations in high-volume data.
 
 ### **Strategic Objectives:**
 * **Early Intervention:** Automatically flags high-liability "outlier" claims at the point of entry for specialized management.
@@ -106,7 +96,6 @@ Evaluated on a 20% holdout test set (~135,000 policies):
 │   └── feature_importance.png
 │
 └── docs/                           # Reference documents
-    ├── ClaimsLiabilityPredictiveModel.pdf
     └── freMTPL2 French Motor Third-Part Liability dataset.pdf
 ```
 
