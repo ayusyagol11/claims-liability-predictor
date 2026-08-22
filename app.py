@@ -227,6 +227,63 @@ html, body, [class*="css"] {
     margin-top: 14px;
 }
 
+.info-icon {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    margin-left: 6px;
+    border-radius: 50%;
+    background: #1e2d45;
+    color: #8899aa;
+    font-size: 0.62rem;
+    font-weight: 700;
+    cursor: help;
+    vertical-align: middle;
+}
+.info-icon .tooltip-text {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    bottom: 140%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0f1623;
+    border: 1px solid #1e2d45;
+    color: #cdd9e5;
+    text-align: left;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 0.68rem;
+    font-weight: 400;
+    line-height: 1.5;
+    width: 230px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    transition: opacity 0.15s ease;
+    z-index: 50;
+    text-transform: none;
+    letter-spacing: normal;
+}
+.info-icon:hover .tooltip-text,
+.info-icon:focus .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+[data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
+    min-height: 0 !important;
+    margin-bottom: -6px;
+}
+[data-testid="stSidebar"] [data-testid="stWidgetLabel"] [data-testid="stMarkdownContainer"] {
+    display: none;
+}
+[data-testid="stSidebar"] [data-testid="stWidgetLabel"] > div {
+    display: flex;
+    justify-content: flex-end;
+}
+
 .footer {
     position: fixed;
     left: 0;
@@ -316,10 +373,16 @@ def section_header(title: str) -> str:
     </div>"""
 
 
-def metric_card(label: str, value: str, context: str) -> str:
+def info_icon(text: str) -> str:
+    escaped = text.replace('"', '&quot;')
+    return f'<span class="info-icon" tabindex="0">i<span class="tooltip-text">{escaped}</span></span>'
+
+
+def metric_card(label: str, value: str, context: str, info: str = None) -> str:
+    label_html = f"{label}{info_icon(info)}" if info else label
     return f"""
     <div class="metric-card">
-        <div class="card-label">{label}</div>
+        <div class="card-label">{label_html}</div>
         <div class="metric-val">{value}</div>
         <div class="metric-context">{context}</div>
     </div>"""
@@ -340,40 +403,58 @@ st.sidebar.markdown("""
 
 def get_user_input():
     st.sidebar.markdown("<p class='param-header'>Driver Age</p>", unsafe_allow_html=True)
-    st.sidebar.markdown("<p class='parameter-desc'>Chronological age of the policyholder; a primary factor in actuarial risk profiling.</p>", unsafe_allow_html=True)
-    driv_age = st.sidebar.slider("DrivAge", 18, 100, 35, label_visibility="collapsed")
+    driv_age = st.sidebar.slider(
+        "DrivAge", 18, 100, 35, label_visibility="visible",
+        help="Chronological age of the policyholder; a primary factor in actuarial risk profiling.",
+    )
 
     st.sidebar.markdown("<p class='param-header'>Bonus / Malus (Risk Index)</p>", unsafe_allow_html=True)
-    st.sidebar.markdown("<p class='parameter-desc'>The French CRM score: &lt;100 indicates a bonus; &gt;100 indicates a malus (high risk).</p>", unsafe_allow_html=True)
-    bonus_malus = st.sidebar.slider("BonusMalus", 50, 350, 50, label_visibility="collapsed")
+    bonus_malus = st.sidebar.slider(
+        "BonusMalus", 50, 350, 50, label_visibility="visible",
+        help="The French CRM score: <100 indicates a bonus; >100 indicates a malus (high risk).",
+    )
 
     st.sidebar.markdown("<p class='param-header'>Vehicle Age (Years)</p>", unsafe_allow_html=True)
-    st.sidebar.markdown("<p class='parameter-desc'>Age of the vehicle, influencing mechanical reliability and claim severity trends.</p>", unsafe_allow_html=True)
-    veh_age = st.sidebar.slider("VehAge", 0, 50, 5, label_visibility="collapsed")
+    veh_age = st.sidebar.slider(
+        "VehAge", 0, 50, 5, label_visibility="visible",
+        help="Age of the vehicle, influencing mechanical reliability and claim severity trends.",
+    )
 
     st.sidebar.markdown("<p class='param-header'>Vehicle Power</p>", unsafe_allow_html=True)
-    st.sidebar.markdown("<p class='parameter-desc'>The engine power rating; often correlated with higher frequency in speed-related events.</p>", unsafe_allow_html=True)
-    veh_power = st.sidebar.number_input("VehPower", 4, 15, 6, label_visibility="collapsed")
+    veh_power = st.sidebar.number_input(
+        "VehPower", 4, 15, 6, label_visibility="visible",
+        help="The engine power rating; often correlated with higher frequency in speed-related events.",
+    )
 
     st.sidebar.markdown("<p class='param-header'>Inhabitant Density</p>", unsafe_allow_html=True)
-    st.sidebar.markdown("<p class='parameter-desc'>Population density per km²; historically correlates with higher collision frequency.</p>", unsafe_allow_html=True)
-    density = st.sidebar.number_input("Density", 0, 30000, 1000, label_visibility="collapsed")
+    density = st.sidebar.number_input(
+        "Density", 0, 30000, 1000, label_visibility="visible",
+        help="Population density per km²; historically correlates with higher collision frequency.",
+    )
 
     st.sidebar.markdown("<p class='param-header'>Geographic Area</p>", unsafe_allow_html=True)
-    st.sidebar.markdown("<p class='parameter-desc'>Zonal classification: A (rural) → F (urban core).</p>", unsafe_allow_html=True)
-    area = st.sidebar.selectbox("Area", ("A", "B", "C", "D", "E", "F"), index=2, label_visibility="collapsed")
+    area = st.sidebar.selectbox(
+        "Area", ("A", "B", "C", "D", "E", "F"), index=2, label_visibility="visible",
+        help="Zonal classification: A (rural) → F (urban core).",
+    )
 
     st.sidebar.markdown("<p class='param-header'>Vehicle Brand</p>", unsafe_allow_html=True)
-    st.sidebar.markdown("<p class='parameter-desc'>Manufacturer categorisation; proxy for parts cost and reliability.</p>", unsafe_allow_html=True)
-    veh_brand = st.sidebar.selectbox("VehBrand", ("B1", "B2", "B3", "B4", "B5", "B6", "B10", "B11", "B12", "B13", "B14"), label_visibility="collapsed")
+    veh_brand = st.sidebar.selectbox(
+        "VehBrand", ("B1", "B2", "B3", "B4", "B5", "B6", "B10", "B11", "B12", "B13", "B14"), label_visibility="visible",
+        help="Anonymised vehicle brand code from the source dataset — categories are not identified manufacturers, just a proxy grouping.",
+    )
 
     st.sidebar.markdown("<p class='param-header'>Fuel Type</p>", unsafe_allow_html=True)
-    st.sidebar.markdown("<p class='parameter-desc'>Diesel often correlates with high-mileage commercial usage patterns.</p>", unsafe_allow_html=True)
-    veh_gas = st.sidebar.radio("VehGas", ("Regular", "Diesel"), label_visibility="collapsed")
+    veh_gas = st.sidebar.radio(
+        "VehGas", ("Regular", "Diesel"), label_visibility="visible",
+        help="Diesel often correlates with high-mileage commercial usage patterns.",
+    )
 
     st.sidebar.markdown("<p class='param-header'>Administrative Region</p>", unsafe_allow_html=True)
-    st.sidebar.markdown("<p class='parameter-desc'>Official French administrative zone classification code.</p>", unsafe_allow_html=True)
-    region = st.sidebar.selectbox("Region", ("R24", "R82", "R22", "R72", "R31", "R91", "R52", "R93", "R11", "R53", "R54", "R73", "R42", "R41", "R83", "R94", "R43", "R26", "R25", "R21", "R23"), label_visibility="collapsed")
+    region = st.sidebar.selectbox(
+        "Region", ("R24", "R82", "R22", "R72", "R31", "R91", "R52", "R93", "R11", "R53", "R54", "R73", "R42", "R41", "R83", "R94", "R43", "R26", "R25", "R21", "R23"), label_visibility="visible",
+        help="Official French administrative zone classification code.",
+    )
 
     return pd.DataFrame({
         'VehPower': veh_power, 'VehAge': veh_age, 'DrivAge': driv_age,
@@ -416,7 +497,7 @@ col1, col2, col3 = st.columns([2, 1, 1])
 with col1:
     st.markdown(f"""
     <div class="kpi-accent-card">
-        <div class="card-label">Expected Annual Liability</div>
+        <div class="card-label">Expected Annual Liability{info_icon("The model's best estimate of this policy's claims cost over a year, based on its risk profile — actuaries call this the 'Pure Premium'. It's before any margin, expenses, or profit loading are added to reach an actual sale price.")}</div>
         <div class="kpi-value">€<span class="kpi-teal">{int_part}</span>.{dec_part}</div>
         <div style="display:flex;align-items:center;gap:10px;margin-top:10px;">
             <span class="{badge_class}">
@@ -434,7 +515,7 @@ with col1:
 with col2:
     st.markdown(f"""
     <div class="kpi-card">
-        <div class="card-label">Portfolio Percentile</div>
+        <div class="card-label">Portfolio Percentile{info_icon("How this policy's predicted cost compares to the rest of the portfolio. A percentile of 80 means this policy is predicted to cost more than 80% of policies in the reference portfolio.")}</div>
         <div class="kpi-stat-val">{round(pred_percentile)}<span style="font-size:1rem;color:#4a6080;">th</span></div>
         <div class="kpi-stat-sub">{band_label} band</div>
     </div>
@@ -443,7 +524,7 @@ with col2:
 with col3:
     st.markdown(f"""
     <div class="kpi-card">
-        <div class="card-label">Risk Band</div>
+        <div class="card-label">Risk Band{info_icon("A simplified Low / Moderate / High grouping of the percentile score — Low is the bottom third of predicted costs, Moderate the middle third, High the top third.")}</div>
         <div class="kpi-stat-val" style="color:{risk_color};font-size:1.3rem;margin-top:8px;">
             {risk_label}
         </div>
@@ -454,7 +535,7 @@ with col3:
 st.markdown(f"""
 <div class="risk-card">
     <div style="display:flex;justify-content:space-between;align-items:center;">
-        <span class="card-label">Risk Spectrum</span>
+        <span class="card-label">Risk Spectrum{info_icon("A visual version of the percentile score above — the further right the bar, the higher this policy's predicted cost relative to the rest of the portfolio.")}</span>
         <span style="font-size:0.65rem;font-weight:700;color:{risk_color};">
             {round(pred_percentile)} / 100
         </span>
@@ -482,7 +563,8 @@ with m1:
         "Tweedie Deviance",
         f"{metrics['mean_tweedie_deviance']:.4f}",
         f"Primary metric · p={metrics['tweedie_power']}<br>"
-        "Native loss for zero-inflated data"
+        "Native loss for zero-inflated data",
+        info="The model's primary accuracy score — lower is better. It's the standard way actuaries measure fit for claims data, where most policies cost $0 and a few cost a lot; a plain accuracy percentage doesn't work well for that shape of data."
     ), unsafe_allow_html=True)
 
 with m2:
@@ -490,21 +572,24 @@ with m2:
         "MAE",
         f"€{metrics['mae']:,.2f}",
         f"Test set: {metrics['test_size']:,} policies<br>"
-        "Zero-inflated — expected high"
+        "Zero-inflated — expected high",
+        info="On average, how far a single prediction is from the actual claim cost. This number looks large mainly because most real policies have $0 in claims while the model always predicts a small positive number — that's expected for this kind of data, not a flaw."
     ), unsafe_allow_html=True)
 
 with m3:
     st.markdown(metric_card(
         "RMSE",
         f"€{metrics['rmse']:,.2f}",
-        "Driven by high-severity<br>tail claims (&lt;1% of policies)"
+        "Driven by high-severity<br>tail claims (&lt;1% of policies)",
+        info="Similar to MAE, but penalises big misses more heavily — it's higher mainly because of a small number of very expensive claims in the data, same as most real insurance portfolios."
     ), unsafe_allow_html=True)
 
 with m4:
     st.markdown(metric_card(
         "Explained Variance",
         f"{metrics['explained_variance']:.4f}",
-        "Expected near-zero<br>for TPL pricing models"
+        "Expected near-zero<br>for TPL pricing models",
+        info="Normally this measures how much of the outcome a model explains — but for this type of zero-inflated claims data it's expected to sit near zero even for a well-built model. It is not a sign the model is broken; Tweedie Deviance above is the right metric to judge accuracy by."
     ), unsafe_allow_html=True)
 
 fi_df = pd.DataFrame({
@@ -514,7 +599,6 @@ fi_df = pd.DataFrame({
 
 fig = px.bar(
     fi_df, x='Importance', y='Feature', orientation='h',
-    title='Feature Importance (Permutation Method)',
     color='Importance',
     color_continuous_scale=[[0, '#ef4444'], [0.499, '#ef4444'],
                              [0.501, '#00d4aa'], [1, '#00d4aa']],
@@ -524,14 +608,21 @@ fig.update_layout(
     plot_bgcolor='rgba(0,0,0,0)',
     paper_bgcolor='rgba(0,0,0,0)',
     font_color='#8899aa',
-    title_font_size=14,
-    title_font_color='#cdd9e5',
     height=380,
     coloraxis_showscale=False,
-    margin=dict(l=0, r=0, t=40, b=0),
+    margin=dict(l=0, r=0, t=8, b=0),
 )
 fig.update_xaxes(gridcolor='#1e2d45', zerolinecolor='#1e2d45')
 fig.update_yaxes(gridcolor='rgba(0,0,0,0)')
+
+st.markdown(
+    f'<div class="card-label" style="font-size:0.8rem;text-transform:none;'
+    f'letter-spacing:normal;color:#cdd9e5;margin-bottom:4px;">'
+    f'Feature Importance (Permutation Method)'
+    f'{info_icon("Which policy details influence the prediction most, measured by testing how much accuracy drops when each one is scrambled. Bars further right had a bigger effect on the prediction.")}'
+    f'</div>',
+    unsafe_allow_html=True,
+)
 st.plotly_chart(fig, use_container_width=True)
 
 st.markdown("""
