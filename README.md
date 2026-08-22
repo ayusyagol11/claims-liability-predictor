@@ -1,18 +1,23 @@
-# 🛡️ Predictive Claims Liability Model: Insurance Risk Oversight
+# 🛡️ Claims Liability Predictor
 
 ![Dashboard Snapshot](Dashboard.png)
 
-## 📋 Project Overview
-In large-scale insurance environments, accurately forecasting the ultimate cost of a claim at the point of lodgement is a critical operational challenge. 
+## 📋 What This Is
 
-By leveraging the **freMTPL2** dataset (678,013 policies), I developed a specialized predictive pipeline to estimate **Pure Premium** (Total Liability / Exposure). This tool enables insurers to identify "high-risk" claims early, optimize financial reserves, and ensure adherence to regulatory compliance.
+When someone lodges a car insurance claim, an insurer needs to estimate roughly how much that claim will end up costing — as early and as accurately as possible. This project is a working demo of that idea: you enter a policy's details (driver age, vehicle type, location, etc.) and it instantly estimates the expected claims cost, flags how risky that policy is relative to the rest of the portfolio, and shows how confident the underlying model is. It's built on a real, publicly available French motor insurance dataset of ~678,000 policies, using the industry-standard statistical approach for this kind of prediction (more on that below, for the technically curious).
 
-🔗 **[View Live Interactive Dashboard](https://claims-liability-predictor-dgw3wokbgkfzrhm4yfdlrh.streamlit.app/)**
+🔗 **[View Live Interactive Dashboard](https://claims-liability-predictor.streamlit.app/)**
 
 ---
 
+## ⚙️ How It Works
+
+The model looks at a policy's risk factors — driver age, vehicle power, location, claims history — and learns from hundreds of thousands of real historical policies which combinations of factors led to expensive claims. It then applies that pattern to any new policy you enter, producing an instant cost estimate. Because most policies never make a claim at all, standard prediction-accuracy measures don't work well here — the model instead uses actuarial-standard statistical measures suited to that reality, explained in the results table below.
+
+---
 
 ## 💼 The Business Problem
+
 Insurance organisations often face "claims leakage" and financial volatility due to reactive reserve setting. Traditional manual reviews are resource-intensive and may miss non-obvious correlations in high-volume data.
 
 ### **Strategic Objectives:**
@@ -32,7 +37,7 @@ The foundation of this model is the **French Motor Third-Party Liability (TPL) I
 
 ---
 
-## 🛠️ Technical Methodology
+## 🛠️ Technical Methodology (for a technical reviewer)
 ### **Addressing Zero-Inflation with Tweedie Regression**
 Insurance data is inherently "zero-inflated," meaning the vast majority of policies result in zero claims, while a small fraction result in highly skewed, positive costs.
 To solve this, I implemented a **Tweedie Regressor** (p=1.5), which is a compound Poisson-Gamma distribution. This approach allows for the simultaneous modeling of claim frequency and severity in a single unified framework, providing significantly higher accuracy than standard linear models for insurance pricing.
@@ -48,17 +53,13 @@ To solve this, I implemented a **Tweedie Regressor** (p=1.5), which is a compoun
 
 Evaluated on a 20% holdout test set (~135,000 policies):
 
-| Metric | Value |
-|--------|-------|
-| Mean Tweedie Deviance (p=1.5) | 84.0536 |
-| Mean Absolute Error (MAE) | €307.34 |
-| Root Mean Squared Error (RMSE) | €8,815.60 |
-| Explained Variance Score | -0.0002 |
+| Metric | Value | In plain terms |
+|--------|-------|-----------------|
+| Mean Tweedie Deviance (p=1.5) | 84.0536 | The model's primary accuracy score (lower = better); the right way to score this type of claims data |
+| Mean Absolute Error (MAE) | €307.34 | On average, how far a single prediction is from the real outcome |
+| Root Mean Squared Error (RMSE) | €8,815.60 | Similar to MAE, but weighted more heavily by rare, very expensive claims |
+| Explained Variance Score | -0.0002 | Expected to be near zero for this kind of data — not a sign the model is broken (explained further below) |
 
-> **Note:** Mean Tweedie Deviance is the primary evaluation metric as it is the native loss
-> function for the Tweedie distribution family. Standard R² can be misleading for
-> zero-inflated insurance data where most policies have zero claims.
->
 > **Why is Explained Variance near zero and MAE high?** Over 93% of policies have zero claims,
 > making the actual Pure Premium distribution extremely zero-inflated. The model predicts
 > *expected* liability (a small positive value for every policy), not whether a specific claim
@@ -111,18 +112,18 @@ Evaluated on a 20% holdout test set (~135,000 policies):
 ## ⚠️ Limitations & Future Work
 
 **Current Limitations:**
-- Single observation year — no temporal validation possible
-- French Motor TPL market — findings are not directly transferable to Australian portfolios without recalibration
-- No external validation dataset
-- Tweedie power parameter (p=1.5) was set based on domain convention, not optimised via grid search
-- No feature interaction terms explored
+- The data covers a single year, so there's no way to validate how the model would perform over time
+- It's built on the French motor insurance market — the findings would need local recalibration before applying them to an Australian (or any other) portfolio
+- There's no separate, independent dataset used to double-check the results
+- The Tweedie model's key setting (p=1.5) was chosen based on standard industry convention, not tuned by testing many values
+- The model doesn't yet account for combinations of risk factors interacting with each other
 
 **Future Improvements:**
-- Grid search on Tweedie `power` parameter (1.0 < p < 2.0)
-- Cross-validation with exposure-weighted folds
-- Feature interaction terms (e.g., DrivAge × BonusMalus)
-- Geographic risk clustering using Inhabitant Density and Region
-- Comparison with Gradient Boosted Tweedie (e.g., LightGBM with Tweedie objective)
+- Systematically test a range of values for the Tweedie `power` setting (between 1.0 and 2.0) to find the best fit
+- Validate the model using cross-validation that still respects each policy's exposure period
+- Explore how risk factors interact — for example, whether driver age matters more or less depending on the Bonus/Malus score
+- Group policies by geography using population density and region to spot local risk clusters
+- Compare results against a Gradient Boosted Tweedie model (e.g., LightGBM with a Tweedie objective) to see if it outperforms the current approach
 
 ---
 
