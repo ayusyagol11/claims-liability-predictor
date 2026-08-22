@@ -264,18 +264,28 @@ model = load_model()
 metrics, portfolio_stats, feat_imp = load_artifacts()
 
 
-def get_risk_percentile(prediction: float, portfolio_stats: dict) -> int:
-    thresholds = [
+def get_risk_percentile(prediction: float, portfolio_stats: dict) -> float:
+    """
+    Single source of truth. Piecewise-linearly interpolates the prediction
+    against five known portfolio percentile anchors (0th anchored at €0).
+    Returns a continuous float in [0, 100] — round only when formatting
+    for display, never before deriving the band label below.
+    """
+    anchor_percentiles = [0, 25, 50, 75, 90, 95]
+    anchor_values = [
+        0.0,
         portfolio_stats['p25_pure_premium'],
         portfolio_stats['median_pure_premium'],
         portfolio_stats['p75_pure_premium'],
         portfolio_stats['p90_pure_premium'],
         portfolio_stats['p95_pure_premium'],
     ]
-    return min(sum(1 for t in thresholds if prediction >= t) * 20, 100)
+    if prediction > anchor_values[-1]:
+        return 100.0
+    return float(np.interp(prediction, anchor_values, anchor_percentiles))
 
 
-def get_risk_tier(percentile: int) -> tuple:
+def get_risk_tier(percentile: float) -> tuple:
     if percentile <= 33:
         return 'LOW', '#00d4aa', 'badge-low'
     elif percentile <= 66:
@@ -283,17 +293,19 @@ def get_risk_tier(percentile: int) -> tuple:
     return 'HIGH', '#ef4444', 'badge-high'
 
 
-def get_percentile_band(prediction: float, portfolio_stats: dict) -> str:
-    bins = sorted([
-        portfolio_stats['p25_pure_premium'],
-        portfolio_stats['median_pure_premium'],
-        portfolio_stats['p75_pure_premium'],
-        portfolio_stats['p90_pure_premium'],
-        portfolio_stats['p95_pure_premium'],
-    ])
-    labels = ['Below 25th', '25th – 50th', '50th – 75th',
-              '75th – 90th', '90th – 95th', 'Above 95th']
-    return labels[min(np.searchsorted(bins, prediction, side='right'), 5)]
+def get_percentile_band(percentile: float) -> str:
+    """
+    Derives the band label FROM the percentile above — never computed
+    independently again. Takes the percentile itself, not
+    (prediction, portfolio_stats), so it is structurally impossible to
+    call it with independently-derived data.
+    """
+    if percentile < 25: return 'Below 25th'
+    if percentile < 50: return '25th – 50th'
+    if percentile < 75: return '50th – 75th'
+    if percentile < 90: return '75th – 90th'
+    if percentile < 95: return '90th – 95th'
+    return 'Above 95th'
 
 
 def section_header(title: str) -> str:
@@ -389,9 +401,9 @@ st.sidebar.markdown("""
 st.markdown("<div class='main-content'>", unsafe_allow_html=True)
 
 prediction = model.predict(model_df)[0]
-pred_percentile = get_risk_percentile(prediction, portfolio_stats)
+pred_percentile = get_risk_percentile(prediction, portfolio_stats)   # float, e.g. 42.7
 risk_label, risk_color, badge_class = get_risk_tier(pred_percentile)
-band_label = get_percentile_band(prediction, portfolio_stats)
+band_label = get_percentile_band(pred_percentile)                     # derived FROM pred_percentile, not recomputed
 
 int_part = f"{int(prediction):,}"
 dec_part = f"{prediction:.2f}".split('.')[1]
@@ -423,7 +435,7 @@ with col2:
     st.markdown(f"""
     <div class="kpi-card">
         <div class="card-label">Portfolio Percentile</div>
-        <div class="kpi-stat-val">{pred_percentile}<span style="font-size:1rem;color:#4a6080;">th</span></div>
+        <div class="kpi-stat-val">{round(pred_percentile)}<span style="font-size:1rem;color:#4a6080;">th</span></div>
         <div class="kpi-stat-sub">{band_label} band</div>
     </div>
     """, unsafe_allow_html=True)
@@ -444,7 +456,7 @@ st.markdown(f"""
     <div style="display:flex;justify-content:space-between;align-items:center;">
         <span class="card-label">Risk Spectrum</span>
         <span style="font-size:0.65rem;font-weight:700;color:{risk_color};">
-            {pred_percentile} / 100
+            {round(pred_percentile)} / 100
         </span>
     </div>
     <div class="risk-bar-track">
