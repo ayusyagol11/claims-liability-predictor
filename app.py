@@ -24,11 +24,19 @@ html, body, [class*="css"] {
 
 .stApp { background-color: #080c14; }
 
+.page-intro {
+    color: #8899aa;
+    font-size: 0.85rem;
+    line-height: 1.65;
+    max-width: 720px;
+    margin: 4px 0 4px;
+}
+
 .section-divider {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin: 8px 0 16px;
+    margin: 32px 0 16px;
 }
 .section-divider-title {
     color: #cdd9e5;
@@ -125,10 +133,17 @@ html, body, [class*="css"] {
     height: 100%;
     text-align: center;
 }
+.kpi-card .card-label {
+    justify-content: center;
+}
 .card-label {
-    font-size: 0.6rem;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    row-gap: 4px;
+    font-size: 0.58rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.6px;
     color: #4a6080;
     margin-bottom: 6px;
 }
@@ -207,7 +222,7 @@ html, body, [class*="css"] {
     background: #0f1623;
     border: 1px solid #1e2d45;
     border-radius: 8px;
-    padding: 14px 16px;
+    padding: 14px 14px;
     height: 100%;
 }
 .metric-val {
@@ -239,9 +254,10 @@ html, body, [class*="css"] {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 14px;
-    height: 14px;
-    margin-left: 6px;
+    width: 13px;
+    height: 13px;
+    margin-left: 4px;
+    flex-shrink: 0;
     border-radius: 50%;
     background: #1e2d45;
     color: #8899aa;
@@ -280,15 +296,13 @@ html, body, [class*="css"] {
 }
 
 [data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
+    display: flex !important;
+    justify-content: flex-end;
     min-height: 0 !important;
     margin-bottom: -6px;
 }
 [data-testid="stSidebar"] [data-testid="stWidgetLabel"] [data-testid="stMarkdownContainer"] {
     display: none;
-}
-[data-testid="stSidebar"] [data-testid="stWidgetLabel"] > div {
-    display: flex;
-    justify-content: flex-end;
 }
 
 [data-testid="stSlider"] {
@@ -433,13 +447,13 @@ def get_user_input():
     )
 
     st.sidebar.markdown("<p class='param-header'>Vehicle Power</p>", unsafe_allow_html=True)
-    veh_power = st.sidebar.number_input(
+    veh_power = st.sidebar.slider(
         "VehPower", 4, 15, 6, label_visibility="visible",
         help="The engine power rating; often correlated with higher frequency in speed-related events.",
     )
 
     st.sidebar.markdown("<p class='param-header'>Inhabitant Density</p>", unsafe_allow_html=True)
-    density = st.sidebar.number_input(
+    density = st.sidebar.slider(
         "Density", 0, 30000, 1000, label_visibility="visible",
         help="Population density per km²; historically correlates with higher collision frequency.",
     )
@@ -493,6 +507,15 @@ st.sidebar.markdown("""
 # 5. Main content
 st.markdown("<div class='main-content'>", unsafe_allow_html=True)
 
+st.markdown(
+    '<p class="page-intro">This dashboard estimates the expected annual claims cost '
+    'for a car insurance policy, using a Tweedie regression model trained on ~678,000 '
+    'real French motor insurance policies. Adjust the parameters in the sidebar to see '
+    'how driver profile, vehicle, and location shape the predicted liability — and where '
+    'it lands relative to the rest of the portfolio.</p>',
+    unsafe_allow_html=True,
+)
+
 prediction = model.predict(model_df)[0]
 pred_percentile = get_risk_percentile(prediction, portfolio_stats)   # float, e.g. 42.7
 risk_label, risk_color, badge_class = get_risk_tier(pred_percentile)
@@ -527,7 +550,7 @@ with col1:
 with col2:
     st.markdown(f"""
     <div class="kpi-card">
-        <div class="card-label">Portfolio Percentile{info_icon("How this policy's predicted cost compares to the rest of the portfolio. A percentile of 80 means this policy is predicted to cost more than 80% of policies in the reference portfolio.")}</div>
+        <div class="card-label">Percentile{info_icon("How this policy's predicted cost compares to the rest of the portfolio. A percentile of 80 means this policy is predicted to cost more than 80% of policies in the reference portfolio.")}</div>
         <div class="kpi-stat-val">{round(pred_percentile)}<span style="font-size:1rem;color:#4a6080;">th</span></div>
         <div class="kpi-stat-sub">{band_label} band</div>
     </div>
@@ -574,8 +597,7 @@ with m1:
     st.markdown(metric_card(
         "Tweedie Deviance",
         f"{metrics['mean_tweedie_deviance']:.4f}",
-        f"Primary metric · p={metrics['tweedie_power']}<br>"
-        "Native loss for zero-inflated data",
+        f"Primary metric · p={metrics['tweedie_power']} · native loss for zero-inflated data",
         info="The model's primary accuracy score — lower is better. It's the standard way actuaries measure fit for claims data, where most policies cost $0 and a few cost a lot; a plain accuracy percentage doesn't work well for that shape of data."
     ), unsafe_allow_html=True)
 
@@ -583,8 +605,7 @@ with m2:
     st.markdown(metric_card(
         "MAE",
         f"€{metrics['mae']:,.2f}",
-        f"Test set: {metrics['test_size']:,} policies<br>"
-        "Zero-inflated — expected high",
+        f"Test set: {metrics['test_size']:,} policies · zero-inflated, expected high",
         info="On average, how far a single prediction is from the actual claim cost. This number looks large mainly because most real policies have $0 in claims while the model always predicts a small positive number — that's expected for this kind of data, not a flaw."
     ), unsafe_allow_html=True)
 
@@ -592,7 +613,7 @@ with m3:
     st.markdown(metric_card(
         "RMSE",
         f"€{metrics['rmse']:,.2f}",
-        "Driven by high-severity<br>tail claims (&lt;1% of policies)",
+        "Driven by high-severity tail claims (&lt;1% of policies)",
         info="Similar to MAE, but penalises big misses more heavily — it's higher mainly because of a small number of very expensive claims in the data, same as most real insurance portfolios."
     ), unsafe_allow_html=True)
 
@@ -600,7 +621,7 @@ with m4:
     st.markdown(metric_card(
         "Explained Variance",
         f"{metrics['explained_variance']:.4f}",
-        "Expected near-zero<br>for TPL pricing models",
+        "Expected near-zero for TPL pricing models",
         info="Normally this measures how much of the outcome a model explains — but for this type of zero-inflated claims data it's expected to sit near zero even for a well-built model. It is not a sign the model is broken; Tweedie Deviance above is the right metric to judge accuracy by."
     ), unsafe_allow_html=True)
 
@@ -629,7 +650,7 @@ fig.update_yaxes(gridcolor='rgba(0,0,0,0)')
 
 st.markdown(
     f'<div class="card-label" style="font-size:0.8rem;text-transform:none;'
-    f'letter-spacing:normal;color:#cdd9e5;margin-bottom:4px;">'
+    f'letter-spacing:normal;color:#cdd9e5;margin:20px 0 8px;">'
     f'Feature Importance (Permutation Method)'
     f'{info_icon("Which policy details influence the prediction most, measured by testing how much accuracy drops when each one is scrambled. Bars further right had a bigger effect on the prediction.")}'
     f'</div>',
