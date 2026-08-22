@@ -291,6 +291,10 @@ html, body, [class*="css"] {
     justify-content: flex-end;
 }
 
+[data-testid="stSlider"] {
+    filter: hue-rotate(175deg) saturate(1.3) brightness(1.2);
+}
+
 .footer {
     position: fixed;
     left: 0;
