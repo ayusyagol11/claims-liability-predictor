@@ -21,8 +21,8 @@ The model looks at a policy's risk factors — driver age, vehicle power, locati
 Insurance organisations often face "claims leakage" and financial volatility due to reactive reserve setting. Traditional manual reviews are resource-intensive and may miss non-obvious correlations in high-volume data.
 
 ### **Strategic Objectives:**
-* **Early Intervention:** Automatically flags high-liability "outlier" claims at the point of entry for specialized management.
-* **Reserve Optimization:** Provides data-driven insights to set accurate financial reserves, ensuring organizational liquidity and regulatory compliance.
+* **Early Intervention:** Automatically flags high-liability "outlier" claims at the point of entry for specialised management.
+* **Reserve Optimisation:** Provides data-driven insights to set accurate financial reserves, ensuring organisational liquidity and regulatory compliance.
 * **Regulatory Adherence:** Ensures data integrity and reporting standards align with French motor insurance governance frameworks.
 
 ---
@@ -40,7 +40,7 @@ The foundation of this model is the **French Motor Third-Party Liability (TPL) I
 ## 🛠️ Technical Methodology (for a technical reviewer)
 ### **Addressing Zero-Inflation with Tweedie Regression**
 Insurance data is inherently "zero-inflated," meaning the vast majority of policies result in zero claims, while a small fraction result in highly skewed, positive costs.
-To solve this, I implemented a **Tweedie Regressor** (p=1.5), which is a compound Poisson-Gamma distribution. This approach allows for the simultaneous modeling of claim frequency and severity in a single unified framework, providing significantly higher accuracy than standard linear models for insurance pricing.
+To solve this, I implemented a **Tweedie Regressor** (p=1.5), which is a compound Poisson-Gamma distribution. This approach allows for the simultaneous modelling of claim frequency and severity in a single unified framework, providing significantly higher accuracy than standard linear models for insurance pricing.
 
 ### **ML Preprocessing Pipeline**
 * **End-to-End Pipeline:** Developed a modular **Scikit-learn pipeline** to handle automated data acquisition, cleaning, and transformation.
