@@ -10,128 +10,147 @@ st.set_page_config(page_title="Claims Liability Dashboard", layout="wide")
 
 CSS = """
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 html, body, [class*="css"] {
     font-family: 'Inter', 'Segoe UI', -apple-system, sans-serif;
 }
 
 [data-testid="stSidebar"] {
-    min-width: 280px;
-    max-width: 280px;
-    background-color: #0a1220;
+    min-width: 300px;
+    max-width: 300px;
+    background-color: #ffffff;
+    border-right: 1px solid #e2e8f0;
 }
 
-.stApp { background-color: #080c14; }
+/* Sidebar is fixed open: no collapse control, no way to hide it */
+[data-testid="stSidebarCollapseButton"],
+[data-testid="stSidebarCollapsedControl"] {
+    display: none !important;
+}
 
+.stApp { background-color: #f5f7fa; }
+[data-testid="stAppViewContainer"] { color: #101828; }
+
+.hero {
+    text-align: center;
+    padding: 8px 0 6px;
+}
+.hero-title {
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.5px;
+    margin: 0;
+}
+.hero-title .hero-accent { color: #00a382; }
 .page-intro {
-    color: #8899aa;
-    font-size: 0.85rem;
+    color: #475569;
+    font-size: 1rem;
     line-height: 1.65;
-    max-width: 720px;
-    margin: 4px 0 4px;
+    max-width: 680px;
+    margin: 10px auto 4px;
 }
 
 .section-divider {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin: 32px 0 16px;
+    margin: 36px 0 18px;
 }
 .section-divider-title {
-    color: #cdd9e5;
-    font-size: 0.7rem;
-    font-weight: 700;
+    color: #0f172a;
+    font-size: 0.85rem;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 1.2px;
+    letter-spacing: 1.1px;
     white-space: nowrap;
 }
 .section-divider-rule {
     flex: 1;
     height: 1px;
-    background: #1e2d45;
+    background: #dbe3ec;
 }
 
 .sidebar-logo {
     padding: 20px 20px 16px;
-    border-bottom: 1px solid #1e2d45;
+    border-bottom: 1px solid #e2e8f0;
     display: flex;
     align-items: center;
     gap: 10px;
     margin-bottom: 16px;
 }
 .sidebar-logo-mark {
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     background: linear-gradient(135deg, #00d4aa, #0088ff);
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-size: 15px;
     color: #fff;
     font-weight: 900;
     flex-shrink: 0;
 }
 .sidebar-logo-title {
-    color: #fff;
-    font-size: 0.75rem;
+    color: #0f172a;
+    font-size: 0.9rem;
     font-weight: 700;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
 }
 .sidebar-logo-sub {
-    color: #4a6080;
-    font-size: 0.62rem;
+    color: #64748b;
+    font-size: 0.74rem;
     margin-top: 2px;
 }
 .sidebar-context-note {
-    font-size: 0.62rem;
-    color: #4a6080;
-    line-height: 1.5;
+    font-size: 0.76rem;
+    color: #64748b;
+    line-height: 1.55;
     padding: 10px 20px 16px;
-    border-bottom: 1px solid #1e2d45;
+    border-bottom: 1px solid #e2e8f0;
 }
 .sidebar-section-label {
-    font-size: 0.62rem;
+    display: flex;
+    align-items: center;
+    font-size: 1.05rem;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #2a4060;
-    margin-bottom: 14px;
-    padding-bottom: 6px;
-    border-bottom: 1px solid #12202e;
+    letter-spacing: 0.5px;
+    color: #0f172a;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #00a38233;
 }
 
 .param-header {
-    font-size: 0.65rem;
+    display: flex;
+    align-items: center;
+    font-size: 0.8rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: #4a6080;
-    margin-bottom: 2px;
-}
-.parameter-desc {
-    font-size: 0.62rem;
-    color: #2a4060;
-    margin-top: 0;
-    margin-bottom: 5px;
-    line-height: 1.3;
+    letter-spacing: 0.6px;
+    color: #334155;
+    margin-bottom: 4px;
 }
 
 .kpi-accent-card {
-    background: linear-gradient(135deg, #0d2137, #0a1a2e);
-    border: 1px solid #00d4aa33;
-    border-left: 3px solid #00d4aa;
-    border-radius: 8px;
-    padding: 16px 20px;
+    background: linear-gradient(135deg, #ecfdf6, #eaf3ff);
+    border: 1px solid #00a38233;
+    border-left: 4px solid #00a382;
+    border-radius: 10px;
+    padding: 18px 22px;
     height: 100%;
 }
 .kpi-card {
-    background: #0f1623;
-    border: 1px solid #1e2d45;
-    border-radius: 8px;
-    padding: 16px 20px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
     height: 100%;
     text-align: center;
+    box-shadow: 0 1px 3px rgba(15,23,42,0.05);
 }
 .kpi-card .card-label {
     justify-content: center;
@@ -141,111 +160,114 @@ html, body, [class*="css"] {
     align-items: center;
     flex-wrap: wrap;
     row-gap: 4px;
-    font-size: 0.58rem;
+    font-size: 0.72rem;
     text-transform: uppercase;
-    letter-spacing: 0.6px;
-    color: #4a6080;
-    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+    color: #64748b;
+    font-weight: 600;
+    margin-bottom: 8px;
 }
 .kpi-value {
-    font-size: 2.2rem;
+    font-size: 2.3rem;
     font-weight: 800;
-    color: #fff;
+    color: #0f172a;
     letter-spacing: -1px;
     line-height: 1;
     margin-bottom: 10px;
 }
-.kpi-teal { color: #00d4aa; }
+.kpi-teal { color: #00a382; }
 .badge-low {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    background: #00d4aa14;
-    border: 1px solid #00d4aa44;
-    color: #00d4aa;
+    background: #00a3821a;
+    border: 1px solid #00a38255;
+    color: #00785f;
     border-radius: 4px;
-    padding: 3px 10px;
-    font-size: 0.65rem;
+    padding: 4px 11px;
+    font-size: 0.76rem;
     font-weight: 700;
 }
 .badge-moderate {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    background: #f59e0b14;
-    border: 1px solid #f59e0b44;
-    color: #f59e0b;
+    background: #f59e0b1a;
+    border: 1px solid #f59e0b55;
+    color: #92400e;
     border-radius: 4px;
-    padding: 3px 10px;
-    font-size: 0.65rem;
+    padding: 4px 11px;
+    font-size: 0.76rem;
     font-weight: 700;
 }
 .badge-high {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    background: #ef444414;
-    border: 1px solid #ef444444;
-    color: #ef4444;
+    background: #ef44441a;
+    border: 1px solid #ef444455;
+    color: #b91c1c;
     border-radius: 4px;
-    padding: 3px 10px;
-    font-size: 0.65rem;
+    padding: 4px 11px;
+    font-size: 0.76rem;
     font-weight: 700;
 }
 .kpi-stat-val {
-    font-size: 1.8rem;
+    font-size: 1.9rem;
     font-weight: 800;
-    color: #fff;
+    color: #0f172a;
     letter-spacing: -0.5px;
     line-height: 1;
     margin: 6px 0 4px;
 }
-.kpi-stat-sub { color: #4a6080; font-size: 0.62rem; }
-.kpi-context { color: #4a6080; font-size: 0.65rem; margin-top: 6px; }
+.kpi-stat-sub { color: #64748b; font-size: 0.76rem; }
+.kpi-context { color: #64748b; font-size: 0.8rem; margin-top: 6px; }
 
 .risk-card {
-    background: #0f1623;
-    border: 1px solid #1e2d45;
-    border-radius: 8px;
-    padding: 14px 18px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 16px 20px;
     margin-top: 10px;
+    box-shadow: 0 1px 3px rgba(15,23,42,0.05);
 }
 .risk-bar-track {
-    height: 8px;
-    background: #1a2840;
-    border-radius: 4px;
+    height: 9px;
+    background: #e6ebf2;
+    border-radius: 5px;
     overflow: hidden;
     margin: 8px 0 6px;
 }
 
 .metric-card {
-    background: #0f1623;
-    border: 1px solid #1e2d45;
-    border-radius: 8px;
-    padding: 14px 14px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 16px 16px;
     height: 100%;
+    box-shadow: 0 1px 3px rgba(15,23,42,0.05);
 }
 .metric-val {
-    font-size: 1.1rem;
+    font-size: 1.3rem;
     font-weight: 700;
-    color: #cdd9e5;
+    color: #0f172a;
     margin: 4px 0;
 }
 .metric-context {
-    font-size: 0.65rem;
-    color: #4a6080;
+    font-size: 0.78rem;
+    color: #64748b;
     margin-top: 4px;
-    line-height: 1.4;
+    line-height: 1.45;
 }
 
 .fi-context {
-    font-size: 0.7rem;
-    color: #4a6080;
+    font-size: 0.85rem;
+    color: #475569;
     line-height: 1.6;
-    padding: 12px 16px;
-    background: #080c14;
-    border-radius: 6px;
-    border: 1px solid #12202e;
+    padding: 14px 18px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
     margin-top: 14px;
 }
 
@@ -254,37 +276,46 @@ html, body, [class*="css"] {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 13px;
-    height: 13px;
-    margin-left: 4px;
+    width: 19px;
+    height: 19px;
+    margin-left: 6px;
     flex-shrink: 0;
     border-radius: 50%;
-    background: #1e2d45;
-    color: #8899aa;
-    font-size: 0.62rem;
+    background: #e2e8f0;
+    color: #334155;
+    font-size: 0.74rem;
     font-weight: 700;
+    font-style: normal;
     cursor: help;
     vertical-align: middle;
+    transition: background-color 0.12s ease, color 0.12s ease, transform 0.12s ease;
+}
+.info-icon:hover,
+.info-icon:focus {
+    background: #00a382;
+    color: #ffffff;
+    transform: scale(1.12);
+    outline: none;
 }
 .info-icon .tooltip-text {
     visibility: hidden;
     opacity: 0;
     position: absolute;
-    bottom: 140%;
+    bottom: 145%;
     left: 50%;
     transform: translateX(-50%);
-    background: #0f1623;
-    border: 1px solid #1e2d45;
-    color: #cdd9e5;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #1e293b;
     text-align: left;
-    padding: 10px 12px;
-    border-radius: 6px;
-    font-size: 0.68rem;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 0.82rem;
     font-weight: 400;
-    line-height: 1.5;
-    width: 230px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
-    transition: opacity 0.15s ease;
+    line-height: 1.65;
+    width: 280px;
+    box-shadow: 0 12px 32px rgba(15,23,42,0.18);
+    transition: opacity 0.1s ease;
     z-index: 50;
     text-transform: none;
     letter-spacing: normal;
@@ -295,31 +326,17 @@ html, body, [class*="css"] {
     opacity: 1;
 }
 
-[data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
-    display: flex !important;
-    justify-content: flex-end;
-    min-height: 0 !important;
-    margin-bottom: -6px;
-}
-[data-testid="stSidebar"] [data-testid="stWidgetLabel"] [data-testid="stMarkdownContainer"] {
-    display: none;
-}
-
-[data-testid="stSlider"] {
-    filter: hue-rotate(175deg) saturate(1.3) brightness(1.2);
-}
-
 .footer {
     position: fixed;
     left: 0;
     bottom: 0;
     width: 100vw;
-    background-color: #080c14;
-    color: #4a6080;
+    background-color: #ffffff;
+    color: #64748b;
     text-align: center;
     padding: 12px 0;
-    font-size: 0.65rem;
-    border-top: 1px solid #1e2d45;
+    font-size: 0.78rem;
+    border-top: 1px solid #e2e8f0;
     z-index: 9999;
 }
 .main-content { margin-bottom: 80px; }
@@ -427,60 +444,40 @@ st.sidebar.markdown("""
 """, unsafe_allow_html=True)
 
 
+def param_header(label: str, info: str) -> None:
+    st.sidebar.markdown(
+        f"<p class='param-header'>{label}{info_icon(info)}</p>",
+        unsafe_allow_html=True,
+    )
+
+
 def get_user_input():
-    st.sidebar.markdown("<p class='param-header'>Driver Age</p>", unsafe_allow_html=True)
-    driv_age = st.sidebar.slider(
-        "DrivAge", 18, 100, 35, label_visibility="visible",
-        help="Chronological age of the policyholder; a primary factor in actuarial risk profiling.",
-    )
+    param_header("Driver Age", "Chronological age of the policyholder; a primary factor in actuarial risk profiling.")
+    driv_age = st.sidebar.slider("DrivAge", 18, 100, 35, label_visibility="collapsed")
 
-    st.sidebar.markdown("<p class='param-header'>Bonus / Malus (Risk Index)</p>", unsafe_allow_html=True)
-    bonus_malus = st.sidebar.slider(
-        "BonusMalus", 50, 350, 50, label_visibility="visible",
-        help="The French CRM score: <100 indicates a bonus; >100 indicates a malus (high risk).",
-    )
+    param_header("Bonus / Malus (Risk Index)", "The French CRM score: below 100 indicates a bonus; above 100 indicates a malus (high risk).")
+    bonus_malus = st.sidebar.slider("BonusMalus", 50, 350, 50, label_visibility="collapsed")
 
-    st.sidebar.markdown("<p class='param-header'>Vehicle Age (Years)</p>", unsafe_allow_html=True)
-    veh_age = st.sidebar.slider(
-        "VehAge", 0, 50, 5, label_visibility="visible",
-        help="Age of the vehicle, influencing mechanical reliability and claim severity trends.",
-    )
+    param_header("Vehicle Age (Years)", "Age of the vehicle, influencing mechanical reliability and claim severity trends.")
+    veh_age = st.sidebar.slider("VehAge", 0, 50, 5, label_visibility="collapsed")
 
-    st.sidebar.markdown("<p class='param-header'>Vehicle Power</p>", unsafe_allow_html=True)
-    veh_power = st.sidebar.slider(
-        "VehPower", 4, 15, 6, label_visibility="visible",
-        help="The engine power rating; often correlated with higher frequency in speed-related events.",
-    )
+    param_header("Vehicle Power", "The engine power rating; often correlated with higher frequency in speed-related events.")
+    veh_power = st.sidebar.slider("VehPower", 4, 15, 6, label_visibility="collapsed")
 
-    st.sidebar.markdown("<p class='param-header'>Inhabitant Density</p>", unsafe_allow_html=True)
-    density = st.sidebar.slider(
-        "Density", 0, 30000, 1000, label_visibility="visible",
-        help="Population density per km²; historically correlates with higher collision frequency.",
-    )
+    param_header("Inhabitant Density", "Population density per km²; historically correlates with higher collision frequency.")
+    density = st.sidebar.slider("Density", 0, 30000, 1000, label_visibility="collapsed")
 
-    st.sidebar.markdown("<p class='param-header'>Geographic Area</p>", unsafe_allow_html=True)
-    area = st.sidebar.selectbox(
-        "Area", ("A", "B", "C", "D", "E", "F"), index=2, label_visibility="visible",
-        help="Zonal classification: A (rural) → F (urban core).",
-    )
+    param_header("Geographic Area", "Zonal classification: A (rural) through F (urban core).")
+    area = st.sidebar.selectbox("Area", ("A", "B", "C", "D", "E", "F"), index=2, label_visibility="collapsed")
 
-    st.sidebar.markdown("<p class='param-header'>Vehicle Brand</p>", unsafe_allow_html=True)
-    veh_brand = st.sidebar.selectbox(
-        "VehBrand", ("B1", "B2", "B3", "B4", "B5", "B6", "B10", "B11", "B12", "B13", "B14"), label_visibility="visible",
-        help="Anonymised vehicle brand code from the source dataset — categories are not identified manufacturers, just a proxy grouping.",
-    )
+    param_header("Vehicle Brand", "Anonymised vehicle brand code from the source dataset — categories are not identified manufacturers, just a proxy grouping.")
+    veh_brand = st.sidebar.selectbox("VehBrand", ("B1", "B2", "B3", "B4", "B5", "B6", "B10", "B11", "B12", "B13", "B14"), label_visibility="collapsed")
 
-    st.sidebar.markdown("<p class='param-header'>Fuel Type</p>", unsafe_allow_html=True)
-    veh_gas = st.sidebar.radio(
-        "VehGas", ("Regular", "Diesel"), label_visibility="visible",
-        help="Diesel often correlates with high-mileage commercial usage patterns.",
-    )
+    param_header("Fuel Type", "Diesel often correlates with high-mileage commercial usage patterns.")
+    veh_gas = st.sidebar.radio("VehGas", ("Regular", "Diesel"), label_visibility="collapsed")
 
-    st.sidebar.markdown("<p class='param-header'>Administrative Region</p>", unsafe_allow_html=True)
-    region = st.sidebar.selectbox(
-        "Region", ("R24", "R82", "R22", "R72", "R31", "R91", "R52", "R93", "R11", "R53", "R54", "R73", "R42", "R41", "R83", "R94", "R43", "R26", "R25", "R21", "R23"), label_visibility="visible",
-        help="Official French administrative zone classification code.",
-    )
+    param_header("Administrative Region", "Official French administrative zone classification code.")
+    region = st.sidebar.selectbox("Region", ("R24", "R82", "R22", "R72", "R31", "R91", "R52", "R93", "R11", "R53", "R54", "R73", "R42", "R41", "R83", "R94", "R43", "R26", "R25", "R21", "R23"), label_visibility="collapsed")
 
     return pd.DataFrame({
         'VehPower': veh_power, 'VehAge': veh_age, 'DrivAge': driv_age,
@@ -492,14 +489,14 @@ def get_user_input():
 model_df = get_user_input()
 
 st.sidebar.markdown("""
-<div style="margin-top:20px;padding-top:14px;border-top:1px solid #1e2d45;
-            text-align:center;font-size:0.6rem;color:#2a4060;line-height:1.7;">
+<div style="margin-top:20px;padding-top:14px;border-top:1px solid #e2e8f0;
+            text-align:center;font-size:0.72rem;color:#94a3b8;line-height:1.7;">
     Built by
     <a href="https://aayushyagol.com" target="_blank"
-       style="color:#00d4aa88;text-decoration:none;">Aayush Yagol</a>
+       style="color:#00a382;text-decoration:none;">Aayush Yagol</a>
     &nbsp;·&nbsp;
     <a href="https://github.com/ayusyagol11/claims-liability-predictor" target="_blank"
-       style="color:#4a6080;text-decoration:none;">GitHub</a><br>
+       style="color:#64748b;text-decoration:none;">GitHub</a><br>
     freMTPL2 · 678K policies
 </div>
 """, unsafe_allow_html=True)
@@ -508,11 +505,14 @@ st.sidebar.markdown("""
 st.markdown("<div class='main-content'>", unsafe_allow_html=True)
 
 st.markdown(
+    '<div class="hero">'
+    '<h1 class="hero-title">Motor <span class="hero-accent">Claims Liability</span> Predictor</h1>'
     '<p class="page-intro">This dashboard estimates the expected annual claims cost '
     'for a car insurance policy, using a Tweedie regression model trained on ~678,000 '
     'real French motor insurance policies. Adjust the parameters in the sidebar to see '
     'how driver profile, vehicle, and location shape the predicted liability — and where '
-    'it lands relative to the rest of the portfolio.</p>',
+    'it lands relative to the rest of the portfolio.</p>'
+    '</div>',
     unsafe_allow_html=True,
 )
 
@@ -551,7 +551,7 @@ with col2:
     st.markdown(f"""
     <div class="kpi-card">
         <div class="card-label">Percentile{info_icon("How this policy's predicted cost compares to the rest of the portfolio. A percentile of 80 means this policy is predicted to cost more than 80% of policies in the reference portfolio.")}</div>
-        <div class="kpi-stat-val">{round(pred_percentile)}<span style="font-size:1rem;color:#4a6080;">th</span></div>
+        <div class="kpi-stat-val">{round(pred_percentile)}<span style="font-size:1rem;color:#64748b;">th</span></div>
         <div class="kpi-stat-sub">{band_label} band</div>
     </div>
     """, unsafe_allow_html=True)
@@ -581,9 +581,9 @@ st.markdown(f"""
                     border-radius:4px;"></div>
     </div>
     <div style="display:flex;justify-content:space-between;">
-        <span style="font-size:0.6rem;color:#2a4060;">Low (&lt;p25)</span>
-        <span style="font-size:0.6rem;color:#2a4060;">Moderate (p25–p75)</span>
-        <span style="font-size:0.6rem;color:#2a4060;">High (&gt;p75)</span>
+        <span style="font-size:0.6rem;color:#94a3b8;">Low (&lt;p25)</span>
+        <span style="font-size:0.6rem;color:#94a3b8;">Moderate (p25–p75)</span>
+        <span style="font-size:0.6rem;color:#94a3b8;">High (&gt;p75)</span>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -640,17 +640,17 @@ fig = px.bar(
 fig.update_layout(
     plot_bgcolor='rgba(0,0,0,0)',
     paper_bgcolor='rgba(0,0,0,0)',
-    font_color='#8899aa',
+    font_color='#64748b',
     height=380,
     coloraxis_showscale=False,
     margin=dict(l=0, r=0, t=8, b=0),
 )
-fig.update_xaxes(gridcolor='#1e2d45', zerolinecolor='#1e2d45')
+fig.update_xaxes(gridcolor='#e2e8f0', zerolinecolor='#e2e8f0')
 fig.update_yaxes(gridcolor='rgba(0,0,0,0)')
 
 st.markdown(
     f'<div class="card-label" style="font-size:0.8rem;text-transform:none;'
-    f'letter-spacing:normal;color:#cdd9e5;margin:20px 0 8px;">'
+    f'letter-spacing:normal;color:#0f172a;margin:20px 0 8px;">'
     f'Feature Importance (Permutation Method)'
     f'{info_icon("Which policy details influence the prediction most, measured by testing how much accuracy drops when each one is scrambled. Bars further right had a bigger effect on the prediction.")}'
     f'</div>',
@@ -660,7 +660,7 @@ st.plotly_chart(fig, use_container_width=True)
 
 st.markdown("""
 <div class="fi-context">
-    <strong style="color:#8899aa;">BonusMalus</strong> dominates with an importance score
+    <strong style="color:#1e293b;">BonusMalus</strong> dominates with an importance score
     ~14&times; greater than the next feature (VehPower). This aligns with actuarial convention
     — the CRM score is the single strongest predictor of individual claim liability.
     Density carries little independent predictive signal once BonusMalus, Area, and VehPower are already in the model.
@@ -674,9 +674,9 @@ st.markdown("""
 <div class="footer">
     Created by
     <a href="https://aayushyagol.com" target="_blank"
-       style="color:#00d4aa88;text-decoration:none;">Aayush Yagol</a>
+       style="color:#00a382;text-decoration:none;">Aayush Yagol</a>
     &nbsp;·&nbsp;
     <a href="https://github.com/ayusyagol11/claims-liability-predictor" target="_blank"
-       style="color:#4a6080;text-decoration:none;">GitHub</a>
+       style="color:#64748b;text-decoration:none;">GitHub</a>
 </div>
 """, unsafe_allow_html=True)
