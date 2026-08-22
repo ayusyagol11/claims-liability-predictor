@@ -76,6 +76,13 @@ html, body, [class*="css"] {
     font-size: 0.62rem;
     margin-top: 2px;
 }
+.sidebar-context-note {
+    font-size: 0.62rem;
+    color: #4a6080;
+    line-height: 1.5;
+    padding: 10px 20px 16px;
+    border-bottom: 1px solid #1e2d45;
+}
 .sidebar-section-label {
     font-size: 0.62rem;
     text-transform: uppercase;
@@ -397,6 +404,7 @@ st.sidebar.markdown("""
         <div class="sidebar-logo-sub">Tweedie Regressor · p=1.5</div>
     </div>
 </div>
+<div class="sidebar-context-note">Trained on the public <strong>freMTPL2</strong> French motor dataset (EUR). Methodology transfers directly to an AUD motor book with local recalibration.</div>
 <div class="sidebar-section-label">Policy Parameters</div>
 """, unsafe_allow_html=True)
 
