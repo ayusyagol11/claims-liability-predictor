@@ -638,7 +638,7 @@ st.markdown("""
     <strong style="color:#8899aa;">BonusMalus</strong> dominates with an importance score
     ~14&times; greater than the next feature (VehPower). This aligns with actuarial convention
     — the CRM score is the single strongest predictor of individual claim liability.
-    Density shows a slight negative permutation score, suggesting minor collinearity with Area.
+    Density carries little independent predictive signal once BonusMalus, Area, and VehPower are already in the model.
 </div>
 """, unsafe_allow_html=True)
 
