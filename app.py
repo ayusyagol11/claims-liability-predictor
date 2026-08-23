@@ -273,10 +273,10 @@ html, body, [class*="css"] {
     font-size: 0.82rem;
     font-weight: 400;
     line-height: 1.65;
-    width: 260px;
+    width: 220px;
     box-shadow: 0 12px 32px rgba(15,23,42,0.18);
     transition: opacity 0.1s ease;
-    z-index: 999;
+    z-index: 9999;
     text-transform: none;
     letter-spacing: normal;
 }
@@ -284,6 +284,21 @@ html, body, [class*="css"] {
 .info-icon:focus .tooltip-text {
     visibility: visible;
     opacity: 1;
+}
+
+/* Lift the whole row containing a hovered/focused info-icon into its own
+   stacking context so its tooltip always paints above later sibling rows
+   (e.g. the next slider's tick-bar labels) — z-index on the tooltip alone
+   isn't enough since none of Streamlit's own row wrappers set z-index, so
+   z-index:auto siblings simply paint in DOM order regardless of the
+   tooltip's own z-index. */
+[data-testid="element-container"]:has(.info-icon) {
+    position: relative;
+    z-index: 10;
+}
+[data-testid="element-container"]:has(.info-icon:hover),
+[data-testid="element-container"]:has(.info-icon:focus) {
+    z-index: 9999;
 }
 
 .footer {
