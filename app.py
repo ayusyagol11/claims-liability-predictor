@@ -72,45 +72,6 @@ html, body, [class*="css"] {
     background: #dbe3ec;
 }
 
-.sidebar-logo {
-    padding: 20px 20px 16px;
-    border-bottom: 1px solid #e2e8f0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 16px;
-}
-.sidebar-logo-mark {
-    width: 34px;
-    height: 34px;
-    background: linear-gradient(135deg, #00d4aa, #0088ff);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 15px;
-    color: #fff;
-    font-weight: 900;
-    flex-shrink: 0;
-}
-.sidebar-logo-title {
-    color: #0f172a;
-    font-size: 0.9rem;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-}
-.sidebar-logo-sub {
-    color: #64748b;
-    font-size: 0.74rem;
-    margin-top: 2px;
-}
-.sidebar-context-note {
-    font-size: 0.76rem;
-    color: #64748b;
-    line-height: 1.55;
-    padding: 10px 20px 16px;
-    border-bottom: 1px solid #e2e8f0;
-}
 .sidebar-section-label {
     display: flex;
     align-items: center;
@@ -119,7 +80,7 @@ html, body, [class*="css"] {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: #0f172a;
-    margin-bottom: 16px;
+    margin: 24px 0 16px;
     padding-bottom: 10px;
     border-bottom: 2px solid #00a38233;
 }
@@ -127,6 +88,8 @@ html, body, [class*="css"] {
 .param-header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    width: 100%;
     font-size: 0.8rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -152,14 +115,10 @@ html, body, [class*="css"] {
     text-align: center;
     box-shadow: 0 1px 3px rgba(15,23,42,0.05);
 }
-.kpi-card .card-label {
-    justify-content: center;
-}
 .card-label {
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
-    row-gap: 4px;
+    justify-content: space-between;
     font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -301,9 +260,10 @@ html, body, [class*="css"] {
     visibility: hidden;
     opacity: 0;
     position: absolute;
-    bottom: 145%;
-    left: 50%;
-    transform: translateX(-50%);
+    top: 130%;
+    bottom: auto;
+    right: -6px;
+    left: auto;
     background: #ffffff;
     border: 1px solid #e2e8f0;
     color: #1e293b;
@@ -313,10 +273,10 @@ html, body, [class*="css"] {
     font-size: 0.82rem;
     font-weight: 400;
     line-height: 1.65;
-    width: 280px;
+    width: 260px;
     box-shadow: 0 12px 32px rgba(15,23,42,0.18);
     transition: opacity 0.1s ease;
-    z-index: 50;
+    z-index: 999;
     text-transform: none;
     letter-spacing: normal;
 }
@@ -417,7 +377,7 @@ def section_header(title: str) -> str:
 
 def info_icon(text: str) -> str:
     escaped = text.replace('"', '&quot;')
-    return f'<span class="info-icon" tabindex="0">i<span class="tooltip-text">{escaped}</span></span>'
+    return f'<span class="info-icon" tabindex="0">?<span class="tooltip-text">{escaped}</span></span>'
 
 
 def metric_card(label: str, value: str, context: str, info: str = None) -> str:
@@ -432,14 +392,6 @@ def metric_card(label: str, value: str, context: str, info: str = None) -> str:
 
 # 4. Sidebar
 st.sidebar.markdown("""
-<div class="sidebar-logo">
-    <div class="sidebar-logo-mark">&#x2B21;</div>
-    <div>
-        <div class="sidebar-logo-title">Claims Liability</div>
-        <div class="sidebar-logo-sub">Tweedie Regressor · p=1.5</div>
-    </div>
-</div>
-<div class="sidebar-context-note">Trained on the public <strong>freMTPL2</strong> French motor dataset (EUR). Methodology transfers directly to an AUD motor book with local recalibration.</div>
 <div class="sidebar-section-label">Policy Parameters</div>
 """, unsafe_allow_html=True)
 
@@ -511,7 +463,9 @@ st.markdown(
     'for a car insurance policy, using a Tweedie regression model trained on ~678,000 '
     'real French motor insurance policies. Adjust the parameters in the sidebar to see '
     'how driver profile, vehicle, and location shape the predicted liability — and where '
-    'it lands relative to the rest of the portfolio.</p>'
+    'it lands relative to the rest of the portfolio. Trained on the public '
+    '<strong>freMTPL2</strong> French motor dataset (EUR) — the same methodology '
+    'transfers directly to an AUD motor book with local recalibration.</p>'
     '</div>',
     unsafe_allow_html=True,
 )
