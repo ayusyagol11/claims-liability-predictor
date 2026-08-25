@@ -291,13 +291,19 @@ html, body, [class*="css"] {
    (e.g. the next slider's tick-bar labels) — z-index on the tooltip alone
    isn't enough since none of Streamlit's own row wrappers set z-index, so
    z-index:auto siblings simply paint in DOM order regardless of the
-   tooltip's own z-index. */
-[data-testid="element-container"]:has(.info-icon) {
+   tooltip's own z-index. Targets both "element-container" (older Streamlit
+   releases) and "stElementContainer" (current) since requirements.txt
+   doesn't pin a version and Streamlit Cloud installs latest — this exact
+   rename is what silently broke the fix in production once before. */
+[data-testid="element-container"]:has(.info-icon),
+[data-testid="stElementContainer"]:has(.info-icon) {
     position: relative;
     z-index: 10;
 }
 [data-testid="element-container"]:has(.info-icon:hover),
-[data-testid="element-container"]:has(.info-icon:focus) {
+[data-testid="element-container"]:has(.info-icon:focus),
+[data-testid="stElementContainer"]:has(.info-icon:hover),
+[data-testid="stElementContainer"]:has(.info-icon:focus) {
     z-index: 9999;
 }
 
