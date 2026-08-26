@@ -17,16 +17,24 @@ html, body, [class*="css"] {
 }
 
 [data-testid="stSidebar"] {
-    min-width: 300px;
-    max-width: 300px;
+    min-width: 240px;
+    max-width: min(300px, 88vw);
+    width: min(300px, 88vw);
     background-color: #ffffff;
     border-right: 1px solid #e2e8f0;
 }
 
-/* Sidebar is fixed open: no collapse control, no way to hide it */
-[data-testid="stSidebarCollapseButton"],
-[data-testid="stSidebarCollapsedControl"] {
-    display: none !important;
+/* Sidebar is fixed open on desktop/tablet: no collapse control there.
+   Below the breakpoint where Streamlit itself switches the sidebar to an
+   overlay (it can no longer sit side-by-side with content), leave its
+   native open/close controls alone — a permanently open ~300px overlay
+   would cover the entire screen on a phone with no way to dismiss it. */
+@media (min-width: 769px) {
+    [data-testid="stSidebarCollapseButton"],
+    [data-testid="stSidebarCollapsedControl"],
+    [data-testid="stExpandSidebarButton"] {
+        display: none !important;
+    }
 }
 
 .stApp { background-color: #f5f7fa; }
@@ -37,7 +45,7 @@ html, body, [class*="css"] {
     padding: 8px 0 6px;
 }
 .hero-title {
-    font-size: 2.4rem;
+    font-size: clamp(1.6rem, 5.5vw, 2.4rem);
     font-weight: 800;
     color: #0f172a;
     letter-spacing: -0.5px;
@@ -46,10 +54,11 @@ html, body, [class*="css"] {
 .hero-title .hero-accent { color: #00a382; }
 .page-intro {
     color: #475569;
-    font-size: 1rem;
+    font-size: clamp(0.85rem, 2.4vw, 1rem);
     line-height: 1.65;
     max-width: 680px;
     margin: 10px auto 4px;
+    padding: 0 12px;
 }
 
 .section-divider {
@@ -273,7 +282,7 @@ html, body, [class*="css"] {
     font-size: 0.82rem;
     font-weight: 400;
     line-height: 1.65;
-    width: 220px;
+    width: min(220px, 78vw);
     box-shadow: 0 12px 32px rgba(15,23,42,0.18);
     transition: opacity 0.1s ease;
     z-index: 9999;
