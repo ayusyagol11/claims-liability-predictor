@@ -56,7 +56,7 @@ html, body, [class*="css"] {
     color: #475569;
     font-size: clamp(0.85rem, 2.4vw, 1rem);
     line-height: 1.65;
-    max-width: 680px;
+    max-width: 100%;
     margin: 10px auto 4px;
     padding: 0 12px;
 }
@@ -573,83 +573,82 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # ── Section 2: Model Performance ─────────────────────────────────────────────
-st.markdown(section_header("Model Performance"), unsafe_allow_html=True)
+with st.expander("MODEL PERFORMANCE", expanded=True):
+    m1, m2, m3, m4 = st.columns(4)
 
-m1, m2, m3, m4 = st.columns(4)
+    with m1:
+        st.markdown(metric_card(
+            "Tweedie Deviance",
+            f"{metrics['mean_tweedie_deviance']:.4f}",
+            f"Primary metric · p={metrics['tweedie_power']} · native loss for zero-inflated data",
+            info="The model's primary accuracy score — lower is better. It's the standard way actuaries measure fit for claims data, where most policies cost $0 and a few cost a lot; a plain accuracy percentage doesn't work well for that shape of data."
+        ), unsafe_allow_html=True)
 
-with m1:
-    st.markdown(metric_card(
-        "Tweedie Deviance",
-        f"{metrics['mean_tweedie_deviance']:.4f}",
-        f"Primary metric · p={metrics['tweedie_power']} · native loss for zero-inflated data",
-        info="The model's primary accuracy score — lower is better. It's the standard way actuaries measure fit for claims data, where most policies cost $0 and a few cost a lot; a plain accuracy percentage doesn't work well for that shape of data."
-    ), unsafe_allow_html=True)
+    with m2:
+        st.markdown(metric_card(
+            "MAE",
+            f"€{metrics['mae']:,.2f}",
+            f"Test set: {metrics['test_size']:,} policies · zero-inflated, expected high",
+            info="On average, how far a single prediction is from the actual claim cost. This number looks large mainly because most real policies have $0 in claims while the model always predicts a small positive number — that's expected for this kind of data, not a flaw."
+        ), unsafe_allow_html=True)
 
-with m2:
-    st.markdown(metric_card(
-        "MAE",
-        f"€{metrics['mae']:,.2f}",
-        f"Test set: {metrics['test_size']:,} policies · zero-inflated, expected high",
-        info="On average, how far a single prediction is from the actual claim cost. This number looks large mainly because most real policies have $0 in claims while the model always predicts a small positive number — that's expected for this kind of data, not a flaw."
-    ), unsafe_allow_html=True)
+    with m3:
+        st.markdown(metric_card(
+            "RMSE",
+            f"€{metrics['rmse']:,.2f}",
+            "Driven by high-severity tail claims (&lt;1% of policies)",
+            info="Similar to MAE, but penalises big misses more heavily — it's higher mainly because of a small number of very expensive claims in the data, same as most real insurance portfolios."
+        ), unsafe_allow_html=True)
 
-with m3:
-    st.markdown(metric_card(
-        "RMSE",
-        f"€{metrics['rmse']:,.2f}",
-        "Driven by high-severity tail claims (&lt;1% of policies)",
-        info="Similar to MAE, but penalises big misses more heavily — it's higher mainly because of a small number of very expensive claims in the data, same as most real insurance portfolios."
-    ), unsafe_allow_html=True)
+    with m4:
+        st.markdown(metric_card(
+            "Explained Variance",
+            f"{metrics['explained_variance']:.4f}",
+            "Expected near-zero for TPL pricing models",
+            info="Normally this measures how much of the outcome a model explains — but for this type of zero-inflated claims data it's expected to sit near zero even for a well-built model. It is not a sign the model is broken; Tweedie Deviance above is the right metric to judge accuracy by."
+        ), unsafe_allow_html=True)
 
-with m4:
-    st.markdown(metric_card(
-        "Explained Variance",
-        f"{metrics['explained_variance']:.4f}",
-        "Expected near-zero for TPL pricing models",
-        info="Normally this measures how much of the outcome a model explains — but for this type of zero-inflated claims data it's expected to sit near zero even for a well-built model. It is not a sign the model is broken; Tweedie Deviance above is the right metric to judge accuracy by."
-    ), unsafe_allow_html=True)
+    fi_df = pd.DataFrame({
+        'Feature': feat_imp['features'],
+        'Importance': feat_imp['importance_mean']
+    }).sort_values('Importance', ascending=True)
 
-fi_df = pd.DataFrame({
-    'Feature': feat_imp['features'],
-    'Importance': feat_imp['importance_mean']
-}).sort_values('Importance', ascending=True)
+    fig = px.bar(
+        fi_df, x='Importance', y='Feature', orientation='h',
+        color='Importance',
+        color_continuous_scale=[[0, '#ef4444'], [0.499, '#ef4444'],
+                                 [0.501, '#00d4aa'], [1, '#00d4aa']],
+        color_continuous_midpoint=0,
+    )
+    fig.update_layout(
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        font_color='#64748b',
+        height=380,
+        coloraxis_showscale=False,
+        margin=dict(l=0, r=0, t=8, b=0),
+    )
+    fig.update_xaxes(gridcolor='#e2e8f0', zerolinecolor='#e2e8f0')
+    fig.update_yaxes(gridcolor='rgba(0,0,0,0)')
 
-fig = px.bar(
-    fi_df, x='Importance', y='Feature', orientation='h',
-    color='Importance',
-    color_continuous_scale=[[0, '#ef4444'], [0.499, '#ef4444'],
-                             [0.501, '#00d4aa'], [1, '#00d4aa']],
-    color_continuous_midpoint=0,
-)
-fig.update_layout(
-    plot_bgcolor='rgba(0,0,0,0)',
-    paper_bgcolor='rgba(0,0,0,0)',
-    font_color='#64748b',
-    height=380,
-    coloraxis_showscale=False,
-    margin=dict(l=0, r=0, t=8, b=0),
-)
-fig.update_xaxes(gridcolor='#e2e8f0', zerolinecolor='#e2e8f0')
-fig.update_yaxes(gridcolor='rgba(0,0,0,0)')
+    st.markdown(
+        f'<div class="card-label" style="font-size:0.8rem;text-transform:none;'
+        f'letter-spacing:normal;color:#0f172a;margin:20px 0 8px;">'
+        f'Feature Importance (Permutation Method)'
+        f'{info_icon("Which policy details influence the prediction most, measured by testing how much accuracy drops when each one is scrambled. Bars further right had a bigger effect on the prediction.")}'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+    st.plotly_chart(fig, use_container_width=True)
 
-st.markdown(
-    f'<div class="card-label" style="font-size:0.8rem;text-transform:none;'
-    f'letter-spacing:normal;color:#0f172a;margin:20px 0 8px;">'
-    f'Feature Importance (Permutation Method)'
-    f'{info_icon("Which policy details influence the prediction most, measured by testing how much accuracy drops when each one is scrambled. Bars further right had a bigger effect on the prediction.")}'
-    f'</div>',
-    unsafe_allow_html=True,
-)
-st.plotly_chart(fig, use_container_width=True)
-
-st.markdown("""
-<div class="fi-context">
-    <strong style="color:#1e293b;">BonusMalus</strong> dominates with an importance score
-    ~14&times; greater than the next feature (VehPower). This aligns with actuarial convention
-    — the CRM score is the single strongest predictor of individual claim liability.
-    Density carries little independent predictive signal once BonusMalus, Area, and VehPower are already in the model.
-</div>
-""", unsafe_allow_html=True)
+    st.markdown("""
+    <div class="fi-context">
+        <strong style="color:#1e293b;">BonusMalus</strong> dominates with an importance score
+        ~14&times; greater than the next feature (VehPower). This aligns with actuarial convention
+        — the CRM score is the single strongest predictor of individual claim liability.
+        Density carries little independent predictive signal once BonusMalus, Area, and VehPower are already in the model.
+    </div>
+    """, unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
 
